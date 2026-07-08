@@ -1,11 +1,11 @@
 import Screen from "../../src/components/ui/Screen";
 import AppText from "../../src/components/ui/AppText";
 
-export default function HomeScreen() {
+export default function ProfileScreen() {
   return (
     <Screen>
       <AppText>
-        HALAL&FITNESS MASTER
+        Profile Screen
       </AppText>
     </Screen>
   );
