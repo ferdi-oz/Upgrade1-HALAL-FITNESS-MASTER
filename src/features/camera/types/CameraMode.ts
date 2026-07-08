@@ -1,0 +1,5 @@
+export enum CameraMode {
+  BARCODE = "BARCODE",
+  INGREDIENTS = "INGREDIENTS",
+  PRODUCT = "PRODUCT",
+}
