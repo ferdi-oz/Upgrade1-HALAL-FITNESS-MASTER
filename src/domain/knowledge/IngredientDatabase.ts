@@ -3,7 +3,6 @@ import { IngredientCategory } from "./IngredientCategory";
 import { IngredientOrigin } from "./IngredientOrigin";
 
 export const IngredientDatabase: IngredientKnowledge[] = [
-
   {
     id: "gelatin",
 
@@ -21,49 +20,43 @@ export const IngredientDatabase: IngredientKnowledge[] = [
     category: IngredientCategory.STABILIZER,
 
     possibleOrigins: [
-
       IngredientOrigin.ANIMAL,
-
       IngredientOrigin.FISH
-
     ],
+
+    vegan: false,
+
+    vegetarian: false,
+
+    halalPossible: true,
+
+    kosherPossible: true,
 
     description:
       "Protein obtained by partial hydrolysis of collagen.",
 
     healthNotes: [
-
-      "Usually safe.",
-
+      "Generally considered safe.",
       "Origin should be verified."
-
     ],
 
     warnings: [
-
       "May originate from porcine sources.",
-
       "May originate from bovine sources."
-
     ],
 
+    allergens: [],
+
     evidence: [
-
-      "FAO",
-
-      "Codex Alimentarius"
-
+      "Codex Alimentarius",
+      "FAO"
     ],
 
     references: [
-
       "Codex",
-
       "EFSA"
-
     ],
 
     confidence: 100
   }
-
 ];

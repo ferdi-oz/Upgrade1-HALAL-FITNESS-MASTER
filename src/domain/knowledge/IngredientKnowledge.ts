@@ -14,11 +14,21 @@ export interface IngredientKnowledge {
 
   possibleOrigins: IngredientOrigin[];
 
+  vegan: boolean;
+
+  vegetarian: boolean;
+
+  halalPossible: boolean;
+
+  kosherPossible: boolean;
+
   description: string;
 
   healthNotes: string[];
 
   warnings: string[];
+
+  allergens: string[];
 
   evidence: string[];
 
