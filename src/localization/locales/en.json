@@ -1,0 +1,21 @@
+{
+  "common": {
+    "appName": "HALAL&FITNESS MASTER",
+    "slogan": "Eat Halal • Live Better"
+  },
+
+  "home": {
+    "scanBarcode": "Scan Barcode",
+    "searchProduct": "Search Product",
+    "todayNutrition": "Today's Nutrition",
+    "recentProducts": "Recent Products",
+    "noProducts": "No scanned products"
+  },
+
+  "nutrition": {
+    "calories": "Calories",
+    "protein": "Protein",
+    "carbs": "Carbs",
+    "fat": "Fat"
+  }
+}

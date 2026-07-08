@@ -1,0 +1,21 @@
+{
+  "common": {
+    "appName": "HALAL&FITNESS MASTER",
+    "slogan": "Syö Halal • Elä Paremmin"
+  },
+
+  "home": {
+    "scanBarcode": "Skannaa viivakoodi",
+    "searchProduct": "Hae tuote",
+    "todayNutrition": "Päivän ravinto",
+    "recentProducts": "Viimeisimmät tuotteet",
+    "noProducts": "Ei vielä skannattuja tuotteita"
+  },
+
+  "nutrition": {
+    "calories": "Kalorit",
+    "protein": "Proteiini",
+    "carbs": "Hiilihydraatit",
+    "fat": "Rasva"
+  }
+}

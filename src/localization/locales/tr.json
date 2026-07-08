@@ -1,0 +1,21 @@
+{
+  "common": {
+    "appName": "HALAL&FITNESS MASTER",
+    "slogan": "Helal Beslen • Daha İyi Yaşa"
+  },
+
+  "home": {
+    "scanBarcode": "Barkod Tara",
+    "searchProduct": "Ürün Ara",
+    "todayNutrition": "Bugünkü Beslenme",
+    "recentProducts": "Son Ürünler",
+    "noProducts": "Henüz taranmış ürün yok"
+  },
+
+  "nutrition": {
+    "calories": "Kalori",
+    "protein": "Protein",
+    "carbs": "Karbonhidrat",
+    "fat": "Yağ"
+  }
+}
