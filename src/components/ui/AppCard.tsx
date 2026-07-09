@@ -15,7 +15,7 @@ import {
 interface Props {
   children: ReactNode;
 
-  style?: ViewStyle;
+  style?: ViewStyle | ViewStyle[];
 }
 
 export default function AppCard({

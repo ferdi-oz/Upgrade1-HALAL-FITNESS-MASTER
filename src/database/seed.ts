@@ -1,70 +1,52 @@
-import * as SQLite from "expo-sqlite";
+﻿import * as SQLite from "expo-sqlite";
+import products from "./seed/products.json";
 
 export async function seedDatabase(
   db: SQLite.SQLiteDatabase
 ) {
   console.log("Seed başladı");
 
-  const existing = await db.getFirstAsync(
-    "SELECT barcode FROM products WHERE barcode = ?",
-    ["8690504012345"]
-  );
+  for (const product of products) {
+    const existing = await db.getFirstAsync<{ barcode: string }>(
+      "SELECT barcode FROM products WHERE barcode = ?",
+      [product.barcode]
+    );
 
-  if (existing) {
-    console.log("Ürün zaten mevcut");
-    return;
+    if (existing) {
+      continue;
+    }
+
+    await db.runAsync(
+      `INSERT INTO products (
+        id,
+        barcode,
+        name,
+        brand,
+        category,
+        imageUrl,
+        ingredients,
+        countries,
+        certifications,
+        createdAt,
+        updatedAt
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        `product-${product.barcode}`,
+        product.barcode,
+        product.name,
+        product.brand ?? "",
+        product.category ?? "",
+        "",
+        JSON.stringify(product.ingredients ?? []),
+        JSON.stringify(product.countries ?? []),
+        JSON.stringify(product.certifications ?? []),
+        new Date().toISOString(),
+        new Date().toISOString()
+      ]
+    );
+
+    console.log("Eklendi:", product.name);
   }
 
-  await db.runAsync(
-    `INSERT INTO products
-    (
-      id,
-      barcode,
-      name,
-      brand,
-      category,
-      imageUrl,
-      ingredients,
-      countries,
-      certifications,
-      createdAt,
-      updatedAt
-    )
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    [
-      "product-001",
-
-      "8690504012345",
-
-      "Ülker Çikolatalı Gofret",
-
-      "Ülker",
-
-      "Chocolate",
-
-      "",
-
-      JSON.stringify([
-        "Sugar",
-        "Wheat Flour",
-        "Cocoa",
-        "Palm Oil",
-        "Milk Powder"
-      ]),
-
-      JSON.stringify([
-        "Turkey"
-      ]),
-
-      JSON.stringify([
-        "Halal"
-      ]),
-
-      new Date().toISOString(),
-
-      new Date().toISOString()
-    ]
-  );
-
-  console.log("Örnek ürün veritabanına eklendi");
+  console.log("Seed tamamlandı");
 }
