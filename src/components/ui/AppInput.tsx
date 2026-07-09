@@ -14,7 +14,7 @@ export default function AppInput(props: Props) {
   return (
     <View style={styles.container}>
       <TextInput
-        placeholderTextColor={Colors.gray}
+        placeholderTextColor={Colors.gray500}
         style={styles.input}
         {...props}
       />
@@ -34,7 +34,7 @@ const styles = StyleSheet.create({
     borderRadius: Radius.input,
     paddingHorizontal: Spacing.md,
     paddingVertical: 14,
-    color: Colors.text,
+    color: Colors.textPrimary,
     ...Typography.body,
   },
 });

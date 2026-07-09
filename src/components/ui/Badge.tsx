@@ -33,7 +33,7 @@ const styles = StyleSheet.create({
     alignSelf: "flex-start",
     paddingHorizontal: Spacing.md,
     paddingVertical: 6,
-    borderRadius: Radius.pill,
+    borderRadius: Radius.chip,
   },
 
   text: {

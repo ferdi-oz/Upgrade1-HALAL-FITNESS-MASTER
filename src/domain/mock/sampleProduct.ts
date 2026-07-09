@@ -1,22 +1,34 @@
 import { Product } from "../models/Product";
-import { Ingredient } from "../models/Ingredient";
 
 export const sampleProduct: Product = {
+  id: "sample-001",
+
   barcode: "1234567890123",
+
   name: "Sample Chocolate",
+
   brand: "Halal Fitness",
 
+  category: "Chocolate",
+
+  imageUrl: "",
+
   ingredients: [
-    {
-      name: "Sugar",
-    } as Ingredient,
-
-    {
-      name: "Gelatin",
-    } as Ingredient,
-
-    {
-      name: "Cocoa Butter",
-    } as Ingredient,
+    "Sugar",
+    "Gelatin",
+    "Cocoa Butter",
   ],
+
+  countries: [
+    "Finland",
+    "Turkey",
+  ],
+
+  certifications: [
+    "Halal",
+  ],
+
+  createdAt: new Date(),
+
+  updatedAt: new Date(),
 };
