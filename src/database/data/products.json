@@ -1,0 +1,55 @@
+[
+  {
+    "barcode": "8690504012345",
+    "name": "Ülker Çikolatalı Gofret",
+    "brand": "Ülker",
+    "category": "Chocolate",
+    "imageUrl": "",
+    "ingredients": [
+      "Sugar",
+      "Wheat Flour",
+      "Cocoa",
+      "Palm Oil",
+      "Milk Powder"
+    ],
+    "countries": [
+      "Turkey"
+    ],
+    "certifications": [
+      "Halal"
+    ]
+  },
+  {
+    "barcode": "6415600550390",
+    "name": "Fazer Milk Chocolate",
+    "brand": "Fazer",
+    "category": "Chocolate",
+    "imageUrl": "",
+    "ingredients": [
+      "Sugar",
+      "Milk",
+      "Cocoa Butter",
+      "Cocoa Mass"
+    ],
+    "countries": [
+      "Finland"
+    ],
+    "certifications": []
+  },
+  {
+    "barcode": "5900951310973",
+    "name": "Wedel Chocolate",
+    "brand": "Wedel",
+    "category": "Chocolate",
+    "imageUrl": "",
+    "ingredients": [
+      "Sugar",
+      "Milk",
+      "Cocoa"
+    ],
+    "countries": [
+      "Poland"
+    ],
+    "certifications": []
+  }
+]

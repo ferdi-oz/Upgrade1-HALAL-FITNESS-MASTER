@@ -1,12 +1,12 @@
-import { getDatabase } from "./database";
+import * as SQLite from "expo-sqlite";
 
-export async function runMigrations() {
-  const db = await getDatabase();
-
+export async function runMigrations(
+  db: SQLite.SQLiteDatabase
+) {
   await db.execAsync(`
     CREATE TABLE IF NOT EXISTS products (
 
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      id TEXT PRIMARY KEY NOT NULL,
 
       barcode TEXT UNIQUE NOT NULL,
 
@@ -14,33 +14,19 @@ export async function runMigrations() {
 
       brand TEXT,
 
+      category TEXT,
+
+      imageUrl TEXT,
+
       ingredients TEXT,
 
-      energy REAL,
+      countries TEXT,
 
-      protein REAL,
+      certifications TEXT,
 
-      carbohydrate REAL,
+      createdAt TEXT,
 
-      sugar REAL,
-
-      fat REAL,
-
-      saturatedFat REAL,
-
-      fiber REAL,
-
-      salt REAL,
-
-      sodium REAL,
-
-      halalStatus TEXT,
-
-      vegan INTEGER,
-
-      vegetarian INTEGER,
-
-      createdAt TEXT
+      updatedAt TEXT
 
     );
   `);
