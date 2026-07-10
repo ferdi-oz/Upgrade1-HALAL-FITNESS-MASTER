@@ -1,61 +1,66 @@
 ﻿export interface OpenFoodFactsProduct {
-
   barcode: string;
-
   name: string;
-
   brand: string;
-
   category: string;
-
   ingredients: string[];
-
   countries: string[];
+}
 
+function parseIngredients(p: any): string[] {
+  // Öncelik: ham metin (ingredients_text) - çoğu üründe bu dolu.
+  const text: string | undefined = p.ingredients_text || p.ingredients_text_tr || p.ingredients_text_en;
+
+  if (text && text.trim().length > 0) {
+    return text
+      .split(",")
+      .map((item: string) => item.trim())
+      .filter(Boolean);
+  }
+
+  // Yedek: yapılandırılmış etiketler (ör. "en:sugar" -> "sugar")
+  const tags: string[] = p.ingredients_tags ?? [];
+
+  return tags.map((tag) => tag.split(":").pop() ?? tag);
 }
 
 export class OpenFoodFactsService {
-
   async getProduct(barcode: string): Promise<OpenFoodFactsProduct | null> {
-
     try {
-
       const response = await fetch(
-        `https://world.openfoodfacts.org/api/v2/product/${barcode}.json`
+        `https://world.openfoodfacts.org/api/v2/product/${barcode}.json`,
+        {
+          headers: {
+            "User-Agent": "HalalFitnessMaster/1.0 (ferdi-oz; Expo app)",
+          },
+        }
       );
+
+      if (!response.ok) {
+        console.log("OpenFoodFacts HTTP hatası:", response.status);
+        return null;
+      }
 
       const json = await response.json();
 
-      if (json.status !== 1) {
+      if (json.status !== 1 || !json.product) {
+        console.log("OpenFoodFacts: ürün bulunamadı ->", barcode);
         return null;
       }
 
       const p = json.product;
 
       return {
-
         barcode,
-
         name: p.product_name ?? "",
-
         brand: p.brands ?? "",
-
         category: p.categories ?? "",
-
-        ingredients:
-          p.ingredients_tags ?? [],
-
-        countries:
-          p.countries_tags ?? [],
-
+        ingredients: parseIngredients(p),
+        countries: p.countries_tags ?? [],
       };
-
-    } catch {
-
+    } catch (error) {
+      console.log("OpenFoodFacts isteği başarısız:", error);
       return null;
-
     }
-
   }
-
 }

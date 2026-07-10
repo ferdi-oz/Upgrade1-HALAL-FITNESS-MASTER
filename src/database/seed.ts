@@ -1,11 +1,11 @@
-import * as SQLite from "expo-sqlite";
+ï»¿import * as SQLite from "expo-sqlite";
 import products from "./seed/catalogs/turkey.json";
 
 export async function seedDatabase(
   db: SQLite.SQLiteDatabase
 ) {
 
-  console.log("Seed baþladý");
+  console.log("Seed baÅŸladÄ±");
 
   for (const product of products) {
 
@@ -36,7 +36,7 @@ export async function seedDatabase(
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `,
       [
-        crypto.randomUUID(),
+        product.barcode,
 
         product.barcode,
 
@@ -72,6 +72,6 @@ export async function seedDatabase(
     );
   }
 
-  console.log("Seed tamamlandý");
+  console.log("Seed tamamlandÄ±");
 
 }

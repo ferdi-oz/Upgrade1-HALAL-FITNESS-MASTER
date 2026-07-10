@@ -37,6 +37,7 @@ export default function ScanScreen() {
     lastScanTime.current = now;
 
     console.log("OKUNAN BARKOD:", result.data);
+    console.log("FORMAT:", result.type);
 
     await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 
@@ -84,7 +85,7 @@ export default function ScanScreen() {
         facing="back"
         enableTorch={flash}
         barcodeScannerSettings={{
-          barcodeTypes: ["ean13", "ean8", "upc_a", "upc_e", "code128", "qr"],
+          barcodeTypes: ["ean13", "ean8"],
         }}
         onBarcodeScanned={handleBarcodeScanned}
       />

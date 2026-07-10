@@ -80,7 +80,7 @@ export class ProductRepository {
 
     await db.runAsync(
       `
-      INSERT INTO products
+      INSERT OR REPLACE INTO products
       (
         id,
         barcode,
@@ -97,16 +97,26 @@ export class ProductRepository {
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `,
       [
-        crypto.randomUUID(),
         product.barcode,
+
+        product.barcode,
+
         product.name,
+
         product.brand,
+
         product.category,
+
         "",
+
         JSON.stringify(product.ingredients),
+
         JSON.stringify(product.countries),
+
         JSON.stringify([]),
+
         new Date().toISOString(),
+
         new Date().toISOString()
       ]
     );
