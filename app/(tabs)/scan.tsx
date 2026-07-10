@@ -1,29 +1,22 @@
-﻿import { useRef, useState } from "react";
+﻿import { Ionicons } from "@expo/vector-icons";
+import { BarcodeScanningResult, CameraView, useCameraPermissions } from "expo-camera";
 import * as Haptics from "expo-haptics";
-import { BarcodeScanningResult } from "expo-camera";
-import { StyleSheet, View, TouchableOpacity } from "react-native";
-import { CameraView, useCameraPermissions } from "expo-camera";
-import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
+import { useRef, useState } from "react";
+import { StyleSheet, TouchableOpacity, View } from "react-native";
 
 import AppText from "../../src/components/ui/AppText";
 
 export default function ScanScreen() {
+  const [permission, requestPermission] = useCameraPermissions();
 
-  const [permission, requestPermission] =
-    useCameraPermissions();
-
-  const [flash, setFlash] =
-    useState(false);
+  const [flash, setFlash] = useState(false);
 
   const lastBarcode = useRef("");
   const lastScanTime = useRef(0);
   const scanning = useRef(false);
 
-  const handleBarcodeScanned = async (
-    result: BarcodeScanningResult
-  ) => {
-
+  const handleBarcodeScanned = async (result: BarcodeScanningResult) => {
     if (scanning.current) {
       return;
     }
@@ -45,9 +38,7 @@ export default function ScanScreen() {
 
     console.log("OKUNAN BARKOD:", result.data);
 
-    await Haptics.notificationAsync(
-      Haptics.NotificationFeedbackType.Success
-    );
+    await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 
     router.push({
       pathname: "/product/[barcode]",
@@ -68,16 +59,9 @@ export default function ScanScreen() {
   if (!permission.granted) {
     return (
       <View style={styles.permissionContainer}>
+        <Ionicons name="camera-outline" size={70} color="#2E7D32" />
 
-        <Ionicons
-          name="camera-outline"
-          size={70}
-          color="#2E7D32"
-        />
-
-        <AppText style={styles.permissionTitle}>
-          Kamera İzni Gerekli
-        </AppText>
+        <AppText style={styles.permissionTitle}>Kamera İzni Gerekli</AppText>
 
         <AppText style={styles.permissionText}>
           Barkod tarayabilmek için kameraya erişim izni vermelisiniz.
@@ -87,82 +71,56 @@ export default function ScanScreen() {
           style={styles.permissionButton}
           onPress={requestPermission}
         >
-          <AppText style={styles.permissionButtonText}>
-            İzin Ver
-          </AppText>
+          <AppText style={styles.permissionButtonText}>İzin Ver</AppText>
         </TouchableOpacity>
-
       </View>
     );
   }
 
   return (
     <View style={styles.container}>
-
       <CameraView
         style={StyleSheet.absoluteFillObject}
         facing="back"
         enableTorch={flash}
         barcodeScannerSettings={{
-          barcodeTypes: [
-            "ean13",
-            "ean8",
-            "upc_a",
-            "upc_e",
-            "code128",
-            "qr",
-          ],
+          barcodeTypes: ["ean13", "ean8", "upc_a", "upc_e", "code128", "qr"],
         }}
         onBarcodeScanned={handleBarcodeScanned}
       />
 
       <View style={styles.overlay}>
-
         <TouchableOpacity
           style={styles.closeButton}
           onPress={() => router.back()}
         >
-
-          <Ionicons
-            name="close"
-            size={30}
-            color="white"
-          />
-
+          <Ionicons name="close" size={30} color="white" />
         </TouchableOpacity>
 
         <TouchableOpacity
           style={styles.flashButton}
           onPress={() => setFlash(!flash)}
         >
-
           <Ionicons
             name={flash ? "flash" : "flash-off"}
             size={26}
             color="white"
           />
-
         </TouchableOpacity>
 
         <View style={styles.scanFrame}>
-
           <View style={[styles.corner, styles.topLeft]} />
           <View style={[styles.corner, styles.topRight]} />
           <View style={[styles.corner, styles.bottomLeft]} />
           <View style={[styles.corner, styles.bottomRight]} />
-
         </View>
 
-        <AppText style={styles.title}>
-          Barkodu çerçeve içine hizalayın
-        </AppText>
+        <AppText style={styles.title}>Barkodu çerçeve içine hizalayın</AppText>
 
         <AppText style={styles.subtitle}>
           Barkod otomatik olarak algılanacaktır.
         </AppText>
-
       </View>
-
     </View>
   );
 }
@@ -170,7 +128,6 @@ export default function ScanScreen() {
 const GREEN = "#33C759";
 
 const styles = StyleSheet.create({
-
   container: {
     flex: 1,
     backgroundColor: "black",
@@ -280,5 +237,4 @@ const styles = StyleSheet.create({
     color: "white",
     fontWeight: "700",
   },
-
 });
