@@ -1,5 +1,6 @@
-import React from "react";
+﻿import React from "react";
 import { View, StyleSheet } from "react-native";
+import { router } from "expo-router";
 
 import Screen from "../../src/components/ui/Screen";
 import AppHeader from "../../src/components/ui/AppHeader";
@@ -9,51 +10,55 @@ import AppText from "../../src/components/ui/AppText";
 import SectionTitle from "../../src/components/ui/SectionTitle";
 
 export default function HomeScreen() {
+
   return (
+
     <Screen>
 
-      <AppHeader title="☪ HALAL&FITNESS MASTER" />
+      <AppHeader title="🍃 HALAL&FITNESS MASTER" />
 
       <View style={styles.space} />
 
       <AppButton
-        title="📷 Scan Barcode"
-        onPress={() => {}}
+        title="📷 Barkod Tara"
+        onPress={() => router.push("/scan")}
       />
 
       <View style={styles.smallSpace} />
 
       <AppButton
-        title="🔍 Search Product"
-        onPress={() => {}}
+        title="🔍 Ürün Ara"
+        onPress={() => router.push("/search")}
       />
 
       <View style={styles.space} />
 
-      <SectionTitle title="Today's Nutrition" />
+      <SectionTitle title="Bugünkü Beslenme" />
 
       <AppCard>
 
-        <AppText>🔥 Calories : 0 kcal</AppText>
+        <AppText>🔥 Kalori : 0 kcal</AppText>
 
         <AppText>💪 Protein : 0 g</AppText>
 
-        <AppText>🥦 Carbs : 0 g</AppText>
+        <AppText>🥖 Karbonhidrat : 0 g</AppText>
 
-        <AppText>🥑 Fat : 0 g</AppText>
+        <AppText>🥑 Yağ : 0 g</AppText>
 
       </AppCard>
 
-      <SectionTitle title="Recent Products" />
+      <SectionTitle title="Son Taranan Ürünler" />
 
       <AppCard>
 
-        <AppText>No scanned products yet.</AppText>
+        <AppText>Henüz ürün taranmadı.</AppText>
 
       </AppCard>
 
     </Screen>
+
   );
+
 }
 
 const styles = StyleSheet.create({

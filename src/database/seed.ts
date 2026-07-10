@@ -1,13 +1,15 @@
-ï»¿import * as SQLite from "expo-sqlite";
-import products from "./seed/products.json";
+import * as SQLite from "expo-sqlite";
+import products from "./seed/catalogs/turkey.json";
 
 export async function seedDatabase(
   db: SQLite.SQLiteDatabase
 ) {
-  console.log("Seed baÅŸladÄ±");
+
+  console.log("Seed baþladý");
 
   for (const product of products) {
-    const existing = await db.getFirstAsync<{ barcode: string }>(
+
+    const existing = await db.getFirstAsync(
       "SELECT barcode FROM products WHERE barcode = ?",
       [product.barcode]
     );
@@ -17,7 +19,8 @@ export async function seedDatabase(
     }
 
     await db.runAsync(
-      `INSERT INTO products (
+      `INSERT INTO products
+      (
         id,
         barcode,
         name,
@@ -29,24 +32,46 @@ export async function seedDatabase(
         certifications,
         createdAt,
         updatedAt
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      )
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `,
       [
-        `product-${product.barcode}`,
+        crypto.randomUUID(),
+
         product.barcode,
+
         product.name,
+
         product.brand ?? "",
+
         product.category ?? "",
+
         "",
-        JSON.stringify(product.ingredients ?? []),
-        JSON.stringify(product.countries ?? []),
-        JSON.stringify(product.certifications ?? []),
+
+        JSON.stringify(
+          product.ingredients ?? []
+        ),
+
+        JSON.stringify(
+          product.countries ?? []
+        ),
+
+        JSON.stringify(
+          product.certifications ?? []
+        ),
+
         new Date().toISOString(),
+
         new Date().toISOString()
       ]
     );
 
-    console.log("Eklendi:", product.name);
+    console.log(
+      "Eklendi:",
+      product.name
+    );
   }
 
-  console.log("Seed tamamlandÄ±");
+  console.log("Seed tamamlandý");
+
 }

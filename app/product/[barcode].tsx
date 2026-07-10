@@ -1,49 +1,50 @@
-import { useEffect, useMemo, useState } from "react";
 import { useLocalSearchParams } from "expo-router";
-import {
-  ActivityIndicator,
-  ScrollView,
-  StyleSheet,
-  View,
-} from "react-native";
+import { useEffect, useMemo, useState } from "react";
+import { ActivityIndicator, ScrollView, StyleSheet, View } from "react-native";
 
-import Screen from "../../src/components/ui/Screen";
 import AppCard from "../../src/components/ui/AppCard";
 import AppText from "../../src/components/ui/AppText";
+import Screen from "../../src/components/ui/Screen";
 
-import {
-  Colors,
-  Radius,
-  Spacing,
-  Typography,
-} from "../../src/theme";
+import { Colors, Spacing, Typography } from "../../src/theme";
 
-import { Product } from "../../src/domain/models/Product";
 import { ProductRepository } from "../../src/database/repositories/ProductRepository";
-
+import { Product } from "../../src/domain/models/Product";
+import { OpenFoodFactsService } from "../../src/services/OpenFoodFactsService";
 export default function ProductScreen() {
-  const { barcode } =
-    useLocalSearchParams<{ barcode: string }>();
+  const { barcode } = useLocalSearchParams<{ barcode: string }>();
 
-  const [loading, setLoading] =
-    useState(true);
+  const [loading, setLoading] = useState(true);
 
-  const [product, setProduct] =
-    useState<Product | null>(null);
+  const [product, setProduct] = useState<Product | null>(null);
 
   useEffect(() => {
     async function loadProduct() {
-
       if (!barcode) {
         setLoading(false);
         return;
       }
 
-      const repository =
-        new ProductRepository();
+      const repository = new ProductRepository();
 
-      const result =
-        await repository.findByBarcode(barcode);
+      let result = await repository.findByBarcode(barcode);
+
+      console.log("SQLite'da ürün bulunamadı.");
+      console.log("OpenFoodFacts çağrılıyor...");
+
+      if (!result) {
+        const service = new OpenFoodFactsService();
+
+        const onlineProduct = await service.getProduct(barcode);
+
+        console.log("OpenFoodFacts sonucu:", onlineProduct);
+
+        if (onlineProduct) {
+          await repository.insertProduct(onlineProduct);
+
+          result = await repository.findByBarcode(barcode);
+        }
+      }
 
       setProduct(result);
 
@@ -51,26 +52,18 @@ export default function ProductScreen() {
     }
 
     loadProduct();
-
   }, [barcode]);
 
-  const halalStatus =
-    useMemo(() => {
+  const halalStatus = useMemo(() => {
+    if (!product) return null;
 
-      if (!product)
-        return null;
-
-      return product.certifications.includes("Halal");
-
-    }, [product]);
+    return product.certifications.includes("Halal");
+  }, [product]);
   if (loading) {
     return (
       <Screen>
         <View style={styles.center}>
-          <ActivityIndicator
-            size="large"
-            color={Colors.primary}
-          />
+          <ActivityIndicator size="large" color={Colors.primary} />
 
           <AppText style={styles.loadingText}>
             Ürün bilgileri yükleniyor...
@@ -84,27 +77,17 @@ export default function ProductScreen() {
     return (
       <Screen>
         <View style={styles.center}>
-
           <AppCard style={styles.notFoundCard}>
+            <AppText style={styles.notFoundTitle}>Ürün Bulunamadı</AppText>
 
-            <AppText style={styles.notFoundTitle}>
-              Ürün Bulunamadı
-            </AppText>
+            <AppText style={styles.label}>Barkod</AppText>
 
-            <AppText style={styles.label}>
-              Barkod
-            </AppText>
-
-            <AppText style={styles.value}>
-              {barcode}
-            </AppText>
+            <AppText style={styles.value}>{barcode}</AppText>
 
             <AppText style={styles.notFoundMessage}>
               Bu ürün henüz yerel veritabanında bulunmuyor.
             </AppText>
-
           </AppCard>
-
         </View>
       </Screen>
     );
@@ -116,94 +99,54 @@ export default function ProductScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.container}
       >
+        <AppText style={styles.productName}>🌿 {product.name}</AppText>
 
-        <AppText style={styles.productName}>
-          🌿 {product.name}
-        </AppText>
-
-        <AppText style={styles.barcode}>
-          Barkod: {product.barcode}
-        </AppText>
+        <AppText style={styles.barcode}>Barkod: {product.barcode}</AppText>
         <AppCard>
+          <AppText style={styles.sectionTitle}>🏢 Marka</AppText>
 
-          <AppText style={styles.sectionTitle}>
-            🏢 Marka
-          </AppText>
-
-          <AppText style={styles.sectionValue}>
-            {product.brand || "-"}
-          </AppText>
-
+          <AppText style={styles.sectionValue}>{product.brand || "-"}</AppText>
         </AppCard>
 
         <AppCard>
-
-          <AppText style={styles.sectionTitle}>
-            📦 Kategori
-          </AppText>
+          <AppText style={styles.sectionTitle}>📦 Kategori</AppText>
 
           <AppText style={styles.sectionValue}>
             {product.category || "-"}
           </AppText>
-
         </AppCard>
 
         <AppCard>
-
-          <AppText style={styles.sectionTitle}>
-            🌍 Ülkeler
-          </AppText>
+          <AppText style={styles.sectionTitle}>🌍 Ülkeler</AppText>
 
           <AppText style={styles.sectionValue}>
-            {product.countries.length > 0
-              ? product.countries.join(", ")
-              : "-"}
+            {product.countries.length > 0 ? product.countries.join(", ") : "-"}
           </AppText>
-
         </AppCard>
 
         <AppCard>
-
-          <AppText style={styles.sectionTitle}>
-            🌿 Sertifikalar
-          </AppText>
+          <AppText style={styles.sectionTitle}>🌿 Sertifikalar</AppText>
 
           <AppText style={styles.sectionValue}>
             {product.certifications.length > 0
               ? product.certifications.join(", ")
               : "Sertifika bilgisi yok"}
           </AppText>
-
         </AppCard>
         <AppCard>
-
-          <AppText style={styles.sectionTitle}>
-            🧾 İçindekiler
-          </AppText>
+          <AppText style={styles.sectionTitle}>🧾 İçindekiler</AppText>
 
           {product.ingredients.length > 0 ? (
-
-            product.ingredients.map(
-              (ingredient, index) => (
-
-                <AppText
-                  key={index}
-                  style={styles.ingredient}
-                >
-                  ✔ {ingredient}
-                </AppText>
-
-              )
-            )
-
+            product.ingredients.map((ingredient, index) => (
+              <AppText key={index} style={styles.ingredient}>
+                ✔ {ingredient}
+              </AppText>
+            ))
           ) : (
-
             <AppText style={styles.sectionValue}>
               İçerik bilgisi bulunmuyor.
             </AppText>
-
           )}
-
         </AppCard>
 
         <AppCard
@@ -217,23 +160,15 @@ export default function ProductScreen() {
             },
           ]}
         >
-
           <AppText style={styles.statusTitle}>
-
-            {halalStatus
-              ? "🟢 Helal Durumu"
-              : "🟡 Sertifika Durumu"}
-
+            {halalStatus ? "🟢 Helal Durumu" : "🟡 Sertifika Durumu"}
           </AppText>
 
           <AppText style={styles.statusText}>
-
             {halalStatus
               ? "Bu ürün kayıtlı sertifikaya göre helal olarak işaretlenmiştir."
               : "Bu ürün için doğrulanmış helal sertifikası bulunmuyor."}
-
           </AppText>
-
         </AppCard>
       </ScrollView>
     </Screen>
@@ -241,7 +176,6 @@ export default function ProductScreen() {
 }
 
 const styles = StyleSheet.create({
-
   container: {
     padding: Spacing.lg,
     paddingBottom: 40,

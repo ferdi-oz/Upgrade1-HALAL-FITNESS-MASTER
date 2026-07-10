@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+﻿import { useRef, useState } from "react";
 import * as Haptics from "expo-haptics";
 import { BarcodeScanningResult } from "expo-camera";
 import { StyleSheet, View, TouchableOpacity } from "react-native";
@@ -9,45 +9,66 @@ import { router } from "expo-router";
 import AppText from "../../src/components/ui/AppText";
 
 export default function ScanScreen() {
-  const [permission, requestPermission] = useCameraPermissions();
-  const [flash, setFlash] = useState(false);
-const lastBarcode = useRef("");
-const lastScanTime = useRef(0);
 
+  const [permission, requestPermission] =
+    useCameraPermissions();
 
-const handleBarcodeScanned = async (
-  result: BarcodeScanningResult
-) => {
-  const now = Date.now();
+  const [flash, setFlash] =
+    useState(false);
 
-  // Aynı barkodu 5 saniye içinde tekrar okuma
-  if (
-    result.data === lastBarcode.current &&
-    now - lastScanTime.current < 5000
-  ) {
-    return;
+  const lastBarcode = useRef("");
+  const lastScanTime = useRef(0);
+  const scanning = useRef(false);
+
+  const handleBarcodeScanned = async (
+    result: BarcodeScanningResult
+  ) => {
+
+    if (scanning.current) {
+      return;
+    }
+
+    scanning.current = true;
+
+    const now = Date.now();
+
+    if (
+      result.data === lastBarcode.current &&
+      now - lastScanTime.current < 5000
+    ) {
+      scanning.current = false;
+      return;
+    }
+
+    lastBarcode.current = result.data;
+    lastScanTime.current = now;
+
+    console.log("OKUNAN BARKOD:", result.data);
+
+    await Haptics.notificationAsync(
+      Haptics.NotificationFeedbackType.Success
+    );
+
+    router.push({
+      pathname: "/product/[barcode]",
+      params: {
+        barcode: result.data,
+      },
+    });
+
+    setTimeout(() => {
+      scanning.current = false;
+    }, 1500);
+  };
+
+  if (!permission) {
+    return null;
   }
-
-  lastBarcode.current = result.data;
-  lastScanTime.current = now;
-
-  await Haptics.notificationAsync(
-    Haptics.NotificationFeedbackType.Success
-  );
-
-  router.push({
-    pathname: "/product/[barcode]",
-    params: {
-      barcode: result.data,
-    },
-  });
-};
-
-  if (!permission) return null;
 
   if (!permission.granted) {
     return (
       <View style={styles.permissionContainer}>
+
         <Ionicons
           name="camera-outline"
           size={70}
@@ -70,6 +91,7 @@ const handleBarcodeScanned = async (
             İzin Ver
           </AppText>
         </TouchableOpacity>
+
       </View>
     );
   }
@@ -78,21 +100,21 @@ const handleBarcodeScanned = async (
     <View style={styles.container}>
 
       <CameraView
-    style={StyleSheet.absoluteFillObject}
-    facing="back"
-    enableTorch={flash}
-    barcodeScannerSettings={{
-      barcodeTypes: [
-        "ean13",
-        "ean8",
-        "upc_a",
-        "upc_e",
-        "code128",
-        "qr",
-      ],
-    }}
-    onBarcodeScanned={handleBarcodeScanned}
-/>
+        style={StyleSheet.absoluteFillObject}
+        facing="back"
+        enableTorch={flash}
+        barcodeScannerSettings={{
+          barcodeTypes: [
+            "ean13",
+            "ean8",
+            "upc_a",
+            "upc_e",
+            "code128",
+            "qr",
+          ],
+        }}
+        onBarcodeScanned={handleBarcodeScanned}
+      />
 
       <View style={styles.overlay}>
 
@@ -100,22 +122,26 @@ const handleBarcodeScanned = async (
           style={styles.closeButton}
           onPress={() => router.back()}
         >
+
           <Ionicons
             name="close"
             size={30}
             color="white"
           />
+
         </TouchableOpacity>
 
         <TouchableOpacity
           style={styles.flashButton}
           onPress={() => setFlash(!flash)}
         >
+
           <Ionicons
             name={flash ? "flash" : "flash-off"}
             size={26}
             color="white"
           />
+
         </TouchableOpacity>
 
         <View style={styles.scanFrame}>
