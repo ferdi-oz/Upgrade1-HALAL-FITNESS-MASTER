@@ -27,21 +27,17 @@ function parseIngredients(p: any): string[] {
 export class OpenFoodFactsService {
   async getProduct(barcode: string): Promise<OpenFoodFactsProduct | null> {
     try {
-      const response = await fetch(
-        `https://world.openfoodfacts.org/api/v2/product/${barcode}.json`,
-        {
-          headers: {
-            "User-Agent": "HalalFitnessMaster/1.0 (ferdi-oz; Expo app)",
-          },
-        }
-      );
-
+console.log("FETCH BAŞLADI");      
+const response = await fetch(
+  `https://world.openfoodfacts.org/api/v2/product/${barcode}.json`
+);
       if (!response.ok) {
         console.log("OpenFoodFacts HTTP hatası:", response.status);
         return null;
       }
 
       const json = await response.json();
+console.log("JSON GELDİ");
 
       if (json.status !== 1 || !json.product) {
         console.log("OpenFoodFacts: ürün bulunamadı ->", barcode);

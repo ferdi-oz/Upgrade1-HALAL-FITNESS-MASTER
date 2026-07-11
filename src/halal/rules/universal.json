@@ -1,0 +1,25 @@
+﻿{
+  "haram": [
+    "pork",
+    "lard",
+    "bacon",
+    "ham",
+    "wine",
+    "alcohol",
+    "e120",
+    "cochineal",
+    "carmine"
+  ],
+
+  "suspicious": [
+    "gelatin",
+    "gelatine",
+    "e471",
+    "e472",
+    "enzyme",
+    "animal fat",
+    "natural flavor",
+    "natural flavour",
+    "emulsifier"
+  ]
+}

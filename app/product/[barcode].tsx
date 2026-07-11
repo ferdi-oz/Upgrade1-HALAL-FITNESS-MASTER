@@ -11,12 +11,20 @@ import { Colors, Spacing, Typography } from "../../src/theme";
 import { ProductRepository } from "../../src/database/repositories/ProductRepository";
 import { Product } from "../../src/domain/models/Product";
 import { OpenFoodFactsService } from "../../src/services/OpenFoodFactsService";
+import { HalalEngine } from "../../src/halal/HalalEngine";
 export default function ProductScreen() {
   const { barcode } = useLocalSearchParams<{ barcode: string }>();
 
   const [loading, setLoading] = useState(true);
 
   const [product, setProduct] = useState<Product | null>(null);
+
+  const analysis = useMemo(() => {
+    if (!product) return null;
+
+    return HalalEngine.analyze(product.ingredients);
+  }, [product]);
+
 
   useEffect(() => {
     async function loadProduct() {
@@ -33,18 +41,25 @@ export default function ProductScreen() {
       console.log("OpenFoodFacts çağrılıyor...");
 
       if (!result) {
-        const service = new OpenFoodFactsService();
 
-        const onlineProduct = await service.getProduct(barcode);
+  console.log("1 - Service oluşturuluyor");
 
-        console.log("OpenFoodFacts sonucu:", onlineProduct);
+  const service = new OpenFoodFactsService();
 
-        if (onlineProduct) {
-          await repository.insertProduct(onlineProduct);
+  console.log("2 - getProduct çağrılıyor");
 
-          result = await repository.findByBarcode(barcode);
-        }
-      }
+  const onlineProduct = await service.getProduct(barcode);
+
+  console.log("3 - getProduct tamamlandı");
+
+  console.log("OpenFoodFacts sonucu:", onlineProduct);
+
+  if (onlineProduct) {
+    await repository.insertProduct(onlineProduct);
+
+    result = await repository.findByBarcode(barcode);
+  }
+}
 
       setProduct(result);
 
@@ -99,6 +114,32 @@ export default function ProductScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.container}
       >
+        <AppCard>
+          <AppText style={styles.sectionTitle}>
+            Helal Durumu
+          </AppText>
+
+          <AppText
+            style={{
+              fontSize: 22,
+              fontWeight: "700",
+              color:
+                analysis?.status === "HALAL"
+                  ? "#2E7D32"
+                  : analysis?.status === "HARAM"
+                  ? "#D32F2F"
+                  : "#F57C00",
+            }}
+          >
+            {analysis?.status}
+          </AppText>
+
+          {analysis?.reasons.map((reason, index) => (
+            <AppText key={index}>
+              • {reason}
+            </AppText>
+          ))}
+        </AppCard>
         <AppText style={styles.productName}>🌿 {product.name}</AppText>
 
         <AppText style={styles.barcode}>Barkod: {product.barcode}</AppText>

@@ -6,6 +6,7 @@ import { useRef, useState } from "react";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
 
 import AppText from "../../src/components/ui/AppText";
+import { BarcodeValidator } from "../../src/services/BarcodeValidator";
 
 export default function ScanScreen() {
   const [permission, requestPermission] = useCameraPermissions();
@@ -23,7 +24,16 @@ export default function ScanScreen() {
 
     scanning.current = true;
 
-    const now = Date.now();
+    console.log("========= SCAN =========");
+console.log(JSON.stringify(result, null, 2));
+console.log("========================");
+
+const now = Date.now();
+
+    if (!BarcodeValidator.isValidEAN13(result.data)) {
+      console.log("Geçersiz EAN-13:", result.data);
+      return;
+    }
 
     if (
       result.data === lastBarcode.current &&
@@ -239,3 +249,5 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
 });
+
+

@@ -1,0 +1,57 @@
+﻿{
+  "pork": {
+    "status": "HARAM",
+
+    "reason": {
+      "tr": "Domuz kaynaklı içerik tespit edildi.",
+      "en": "Pork-derived ingredient detected.",
+      "fi": "Tuote sisältää sianperäisen ainesosan."
+    },
+
+    "quran": [
+      "2:173",
+      "5:3",
+      "6:145",
+      "16:115"
+    ],
+
+    "hadith": [
+      "Sahih al-Bukhari",
+      "Sahih Muslim"
+    ]
+  },
+
+  "lard": {
+    "status": "HARAM",
+
+    "reason": {
+      "tr": "Domuz yağı tespit edildi.",
+      "en": "Lard detected.",
+      "fi": "Tuotteessa on sianrasvaa."
+    },
+
+    "quran": [
+      "2:173",
+      "5:3",
+      "6:145",
+      "16:115"
+    ],
+
+    "hadith": [
+      "Sahih al-Bukhari",
+      "Sahih Muslim"
+    ]
+  },
+
+  "e120": {
+    "status": "HARAM",
+
+    "reason": {
+      "tr": "E120 (Karmin) tespit edildi.",
+      "en": "E120 (Carmine) detected.",
+      "fi": "E120 (Karmiini) havaittu."
+    },
+
+    "hadith": []
+  }
+}
