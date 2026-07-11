@@ -36,11 +36,14 @@ export default function ProductScreen() {
       const repository = new ProductRepository();
 
       let result = await repository.findByBarcode(barcode);
+console.log(
+  "SQLITE SONUCU:",
+  result ? `BULUNDU -> ${result.name}` : "BULUNAMADI"
+);
 
-      console.log("SQLite'da ürün bulunamadı.");
-      console.log("OpenFoodFacts çağrılıyor...");
-
+      
       if (!result) {
+console.log("OpenFoodFacts çağrılıyor...");
 
   console.log("1 - Service oluşturuluyor");
 

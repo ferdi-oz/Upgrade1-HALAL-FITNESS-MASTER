@@ -98,26 +98,51 @@ export class ProductRepository {
       `,
       [
         product.barcode,
-
         product.barcode,
-
         product.name,
-
         product.brand,
-
         product.category,
-
         "",
-
         JSON.stringify(product.ingredients),
-
         JSON.stringify(product.countries),
-
         JSON.stringify([]),
-
         new Date().toISOString(),
-
         new Date().toISOString()
+      ]
+    );
+  }
+
+  async updateProduct(product: {
+    barcode: string;
+    name: string;
+    brand: string;
+    category: string;
+    ingredients: string[];
+    countries: string[];
+  }) {
+
+    const db = await getDatabase();
+
+    await db.runAsync(
+      `
+      UPDATE products
+      SET
+        name = ?,
+        brand = ?,
+        category = ?,
+        ingredients = ?,
+        countries = ?,
+        updatedAt = ?
+      WHERE barcode = ?
+      `,
+      [
+        product.name,
+        product.brand,
+        product.category,
+        JSON.stringify(product.ingredients),
+        JSON.stringify(product.countries),
+        new Date().toISOString(),
+        product.barcode
       ]
     );
   }

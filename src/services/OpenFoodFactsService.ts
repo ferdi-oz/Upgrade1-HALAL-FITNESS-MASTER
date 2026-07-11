@@ -7,37 +7,59 @@
   countries: string[];
 }
 
-function parseIngredients(p: any): string[] {
-  // Öncelik: ham metin (ingredients_text) - çoğu üründe bu dolu.
-  const text: string | undefined = p.ingredients_text || p.ingredients_text_tr || p.ingredients_text_en;
+function normalizeIngredient(value: string): string {
+  return value
+    .replace(/\([^)]*\)/g, " ")
+    .replace(/\[[^\]]*\]/g, " ")
+    .replace(/\{[^}]*\}/g, " ")
+    .replace(/[0-9]+(\.[0-9]+)?%/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
 
-  if (text && text.trim().length > 0) {
-    return text
-      .split(",")
-      .map((item: string) => item.trim())
-      .filter(Boolean);
+function parseIngredients(p: any): string[] {
+  const text: string =
+    p.ingredients_text ??
+    p.ingredients_text_tr ??
+    p.ingredients_text_en ??
+    "";
+
+  if (text.trim().length > 0) {
+    const list = text
+      .split(/[,;.\n]/)
+      .map(normalizeIngredient)
+      .filter((x) => x.length > 0);
+
+    return [...new Set(list)];
   }
 
-  // Yedek: yapılandırılmış etiketler (ör. "en:sugar" -> "sugar")
   const tags: string[] = p.ingredients_tags ?? [];
 
-  return tags.map((tag) => tag.split(":").pop() ?? tag);
+  const list = tags
+    .map((tag) => tag.split(":").pop() ?? tag)
+    .map(normalizeIngredient)
+    .filter((x) => x.length > 0);
+
+  return [...new Set(list)];
 }
 
 export class OpenFoodFactsService {
   async getProduct(barcode: string): Promise<OpenFoodFactsProduct | null> {
     try {
-console.log("FETCH BAŞLADI");      
-const response = await fetch(
-  `https://world.openfoodfacts.org/api/v2/product/${barcode}.json`
-);
+      console.log("FETCH BAŞLADI");
+
+      const response = await fetch(
+        `https://world.openfoodfacts.org/api/v2/product/${barcode}.json`
+      );
+
       if (!response.ok) {
         console.log("OpenFoodFacts HTTP hatası:", response.status);
         return null;
       }
 
       const json = await response.json();
-console.log("JSON GELDİ");
+
+      console.log("JSON GELDİ");
 
       if (json.status !== 1 || !json.product) {
         console.log("OpenFoodFacts: ürün bulunamadı ->", barcode);
