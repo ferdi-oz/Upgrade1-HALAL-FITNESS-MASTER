@@ -19,6 +19,11 @@ import {
   getDatabase,
 } from "../src/database/database";
 
+
+import {
+  UserProvider,
+} from "../src/context/UserContext";
+
 export default function RootLayout() {
 
   const [showWelcome, setShowWelcome] =
@@ -65,9 +70,12 @@ export default function RootLayout() {
 
       <SafeAreaProvider>
 
-        <StatusBar style="dark" />
+  <UserProvider>
 
-        <Stack
+    <StatusBar style="dark" />
+
+    <Stack
+
           screenOptions={{
             headerShown: false,
           }}
@@ -104,9 +112,11 @@ export default function RootLayout() {
             }}
           />
 
-        </Stack>
+       </Stack>
 
-      </SafeAreaProvider>
+  </UserProvider>
+
+</SafeAreaProvider>
 
     </GestureHandlerRootView>
 
