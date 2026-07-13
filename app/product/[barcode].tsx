@@ -31,7 +31,12 @@ import {
   analyzeIngredients,
 } from "../../src/engine/IngredientAnalyzer";
 
+import { useUser } from "../../src/context/UserContext";
+
+
 export default function ProductScreen() {
+
+const { isGuest } = useUser();
 
   const {
     barcode,
@@ -51,6 +56,8 @@ export default function ProductScreen() {
 
   const ingredientAnalysis =
     useMemo(() => {
+
+
 
       if (
         !product?.ingredients
@@ -348,24 +355,38 @@ const halalFitnessScore = useMemo(() => {
     ⭐ Halal Fitness Score
   </AppText>
 
+{isGuest && (
   <AppText
     style={{
-      fontSize: 42,
-      fontWeight: "700",
+      color: "#C62828",
       textAlign: "center",
-      color:
-        halalFitnessScore >= 80
-          ? "#2E7D32"
-          : halalFitnessScore >= 60
-          ? "#F9A825"
-          : "#C62828",
+      marginBottom: 12,
+      fontWeight: "600",
     }}
   >
-    {halalFitnessScore}/100
-
-
-
+    🔒 Health Analysis is available for members only.
   </AppText>
+)}
+
+  <AppText
+  style={{
+    fontSize: 42,
+    fontWeight: "700",
+    textAlign: "center",
+    color:
+      halalFitnessScore >= 80
+        ? "#2E7D32"
+        : halalFitnessScore >= 60
+        ? "#F9A825"
+        : "#C62828",
+  }}
+>
+  {isGuest ? "🔒" : `${halalFitnessScore}/100`}
+</AppText>
+
+
+
+
 
   <AppText
     style={{

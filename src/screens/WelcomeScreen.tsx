@@ -1,3 +1,5 @@
+
+
 import React, { useEffect, useRef } from "react";
 import {
   Animated,
@@ -13,6 +15,7 @@ type Props = {
 
 export default function WelcomeScreen({ onFinish }: Props) {
 
+
   const logoOpacity = useRef(new Animated.Value(0)).current;
   const logoScale = useRef(new Animated.Value(0.6)).current;
 
@@ -24,6 +27,7 @@ export default function WelcomeScreen({ onFinish }: Props) {
   const line4 = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
+
 
     Animated.sequence([
 
