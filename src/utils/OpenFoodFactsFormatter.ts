@@ -1,45 +1,119 @@
+const COUNTRY_MAP: Record<string, string> = {
+  finland: "🇫🇮 Finlandiya",
+  sweden: "🇸🇪 İsveç",
+  norway: "🇳🇴 Norveç",
+  denmark: "🇩🇰 Danimarka",
+  germany: "🇩🇪 Almanya",
+  france: "🇫🇷 Fransa",
+  italy: "🇮🇹 İtalya",
+  spain: "🇪🇸 İspanya",
+  poland: "🇵🇱 Polonya",
+  netherlands: "🇳🇱 Hollanda",
+  belgium: "🇧🇪 Belçika",
+  turkey: "🇹🇷 Türkiye",
+  ireland: "🇮🇪 İrlanda",
+  austria: "🇦🇹 Avusturya",
+  switzerland: "🇨🇭 İsviçre",
+  portugal: "🇵🇹 Portekiz",
+  greece: "🇬🇷 Yunanistan",
+  canada: "🇨🇦 Kanada",
+  "united states": "🇺🇸 ABD",
+  usa: "🇺🇸 ABD",
+  uk: "🇬🇧 Birleşik Krallık",
+  england: "🇬🇧 Birleşik Krallık",
+  "united kingdom": "🇬🇧 Birleşik Krallık",
+};
+
+const CATEGORY_MAP: Record<string, string> = {
+
+  "fruits based foods": "Meyve Bazlı Gıdalar",
+
+  "fruits secs": "Kurutulmuş Meyveler",
+
+  "fruits a coque": "Kabuklu Yemişler",
+
+  "pistaches": "Antep Fıstığı",
+
+  "pistaches grillées": "Kavrulmuş Antep Fıstığı",
+
+  "pistaches salées": "Tuzlu Antep Fıstığı",
+
+  "nuts": "Kuruyemiş",
+
+  "roasted nuts": "Kavrulmuş Kuruyemiş",
+
+  "salted nuts": "Tuzlu Kuruyemiş",
+
+  "snacks": "Atıştırmalık",
+
+  "breakfasts": "Kahvaltılık",
+
+  "cereals": "Tahıllar",
+
+  "biscuits": "Bisküvi",
+
+  "cookies": "Kurabiye",
+
+  "chocolate": "Çikolata",
+
+  "cheese": "Peynir",
+
+  "milk": "Süt",
+
+  "beverages": "İçecek",
+
+  "soft drinks": "Gazlı İçecek",
+
+  "water": "Su",
+
+  "coffee": "Kahve",
+
+  "tea": "Çay",
+
+};
+
 export function formatCountry(country: string): string {
-  const value = country
+
+  const key = country
+    .toLowerCase()
     .replace(/^en:/, "")
-    .replace(/^fi:/, "")
     .replace(/^fr:/, "")
+    .replace(/^fi:/, "")
     .replace(/^de:/, "")
     .replace(/-/g, " ")
-    .toLowerCase();
+    .trim();
 
-  const countries: Record<string, string> = {
-    finland: "Finland",
-    sweden: "Sweden",
-    norway: "Norway",
-    denmark: "Denmark",
-    germany: "Germany",
-    france: "France",
-    italy: "Italy",
-    spain: "Spain",
-    poland: "Poland",
-    netherlands: "Netherlands",
-    belgium: "Belgium",
-    turkey: "Türkiye",
-    "united kingdom": "United Kingdom",
-    ireland: "Ireland",
-    austria: "Austria",
-    switzerland: "Switzerland",
-    portugal: "Portugal",
-    greece: "Greece",
-    canada: "Canada",
-    "united states": "United States",
-  };
+  return COUNTRY_MAP[key] ?? key;
 
-  return countries[value] ?? value;
 }
 
 export function formatCategory(category: string): string {
+
   return category
-    .replace(/en:/g, "")
-    .replace(/fr:/g, "")
-    .replace(/fi:/g, "")
-    .replace(/de:/g, "")
-    .replace(/,/g, "\n")
-    .replace(/-/g, " ")
-    .replace(/\b\w/g, (x) => x.toUpperCase());
+
+    .split(",")
+
+    .map((item) =>
+      item
+        .replace(/^en:/, "")
+        .replace(/^fr:/, "")
+        .replace(/^fi:/, "")
+        .replace(/^de:/, "")
+        .replace(/à/g, "a")
+        .replace(/-/g, " ")
+        .trim()
+    )
+
+    .filter(Boolean)
+
+    .map((item) => {
+
+      const lower = item.toLowerCase();
+
+      return CATEGORY_MAP[lower] ?? item;
+
+    })
+
+    .join("\n");
+
 }

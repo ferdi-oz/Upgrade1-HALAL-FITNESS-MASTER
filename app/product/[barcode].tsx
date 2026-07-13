@@ -2,6 +2,10 @@ import { useLocalSearchParams } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
 
 import {
+  analyzeIngredients,
+} from "../../src/engine/IngredientAnalyzer";
+
+import {
   ActivityIndicator,
   Image,
   ScrollView,
@@ -67,8 +71,23 @@ export default function ProductScreen() {
   useState(true);
 
 
-  const [product,setProduct]
-  =
+ 
+const [product, setProduct] =
+  useState<any>();
+
+const ingredientAnalysis = useMemo(() => {
+
+  if (!product?.ingredients) {
+    return [];
+  }
+
+  return analyzeIngredients(
+    product.ingredients
+  );
+
+}, [product]);
+
+
   useState<Product | null>(null);
 
 
@@ -294,6 +313,73 @@ export default function ProductScreen() {
   return (
 
     <Screen>
+
+<AppCard>
+
+ <AppText
+  style={{
+    fontSize: 20,
+    fontWeight: "700",
+    marginBottom: 10,
+  }}
+>
+
+
+    🧪 İçerik Analizi
+  </AppText>
+
+  {ingredientAnalysis.length === 0 ? (
+
+    <AppText>
+      Analiz edilecek içerik bulunamadı.
+    </AppText>
+
+  ) : (
+
+    ingredientAnalysis.map((item, index) => (
+
+      <View
+        key={index}
+        style={{ marginTop: 10 }}
+      >
+
+        <AppText>
+
+          {item.info.status === "halal"
+            ? "🟢"
+            : item.info.status === "warning"
+            ? "🟡"
+            : "🔴"}
+
+          {" "}
+
+          {item.info.id}
+
+        </AppText>
+
+        <AppText>
+
+          {item.info.description}
+
+        </AppText>
+
+        <AppText>
+
+          Kaynak:
+
+          {" "}
+
+          {item.info.source}
+
+        </AppText>
+
+      </View>
+
+    ))
+
+  )}
+
+</AppCard>
 
       <ScrollView
         showsVerticalScrollIndicator={false}
@@ -585,7 +671,8 @@ export default function ProductScreen() {
 
           {product.ingredients.length > 0 ? (
 
-            product.ingredients.map((item, index) => (
+            product.ingredients.map(
+  (item: string, index: number) => (
 
               <AppText
                 key={index}

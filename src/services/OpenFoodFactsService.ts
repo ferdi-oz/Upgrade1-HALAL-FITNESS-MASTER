@@ -110,18 +110,35 @@ console.log("IMAGE2 =", p.image_url);
         barcode,
 
         name:
-          p.product_name ?? "",
+  (
+    p.product_name ??
+    p.product_name_en ??
+    p.generic_name ??
+    p.generic_name_en ??
+    ""
+  )
+    .replace(/\s+/g, " ")
+    .trim(),
 
-        brand:
-          p.brands ?? "",
 
         image:
-          p.image_front_url ??
-          p.image_url ??
-          "",
+  p.image_front_large_url ??
+  p.image_front_url ??
+  p.image_url ??
+  p.image_small_url ??
+  "",
 
-        category:
-          p.categories ?? "",
+brand:
+  (p.brands ?? "")
+    .split(",")[0]
+    .trim(),
+
+
+       category:
+  p.categories_tags?.join(",") ??
+  p.categories ??
+  "",
+
 
         ingredients:
           parseIngredients(p),
