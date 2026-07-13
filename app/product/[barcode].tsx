@@ -1,225 +1,768 @@
 import { useLocalSearchParams } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
-import { ActivityIndicator, ScrollView, StyleSheet, View } from "react-native";
 
+import {
+  ActivityIndicator,
+  Image,
+  ScrollView,
+  Share,
+  StyleSheet,
+  View,
+  Pressable,
+} from "react-native";
+
+
+import Screen from "../../src/components/ui/Screen";
 import AppCard from "../../src/components/ui/AppCard";
 import AppText from "../../src/components/ui/AppText";
-import Screen from "../../src/components/ui/Screen";
 
-import { Colors, Spacing, Typography } from "../../src/theme";
 
-import { ProductRepository } from "../../src/database/repositories/ProductRepository";
-import { Product } from "../../src/domain/models/Product";
-import { OpenFoodFactsService } from "../../src/services/OpenFoodFactsService";
-import { HalalEngine } from "../../src/halal/HalalEngine";
+import {
+  Colors,
+  Spacing,
+  Typography,
+} from "../../src/theme";
+
+
+import {
+  ProductRepository,
+} from "../../src/database/repositories/ProductRepository";
+
+
+import {
+  Product,
+} from "../../src/domain/models/Product";
+
+
+import {
+  OpenFoodFactsService,
+} from "../../src/services/OpenFoodFactsService";
+
+
+import {
+  HalalEngine,
+} from "../../src/halal/HalalEngine";
+
+
+import {
+  formatCategory,
+  formatCountry,
+} from "../../src/utils/OpenFoodFactsFormatter";
+
+
+
 export default function ProductScreen() {
-  const { barcode } = useLocalSearchParams<{ barcode: string }>();
 
-  const [loading, setLoading] = useState(true);
 
-  const [product, setProduct] = useState<Product | null>(null);
+  const {
+    barcode
+  } =
+  useLocalSearchParams<{
+    barcode:string;
+  }>();
+
+
+  const [loading,setLoading]
+  =
+  useState(true);
+
+
+  const [product,setProduct]
+  =
+  useState<Product | null>(null);
+
+
+  const [favorite,setFavorite]
+  =
+  useState(false);
+
+
+  const [imageLoading,setImageLoading]
+  =
+  useState(true);
+
 
   const analysis = useMemo(() => {
+
     if (!product) return null;
 
-    return HalalEngine.analyze(product.ingredients);
+    return HalalEngine.analyze(
+      product.ingredients
+    );
+
   }, [product]);
 
 
   useEffect(() => {
+
     async function loadProduct() {
+
       if (!barcode) {
+
         setLoading(false);
+
         return;
+
       }
 
-      const repository = new ProductRepository();
+      const repository =
+        new ProductRepository();
 
-      let result = await repository.findByBarcode(barcode);
-console.log(
-  "SQLITE SONUCU:",
-  result ? `BULUNDU -> ${result.name}` : "BULUNAMADI"
-);
+      let result =
+        await repository.findByBarcode(
+          barcode
+        );
 
-      
-      if (!result) {
-console.log("OpenFoodFacts çağrılıyor...");
+      const needRefresh =
+        !result ||
+        !result.imageUrl ||
+        result.imageUrl.trim() === "" ||
+        !result.category ||
+        result.category.trim() === "";
 
-  console.log("1 - Service oluşturuluyor");
+      if (needRefresh) {
 
-  const service = new OpenFoodFactsService();
+        console.log(
+          "SMART SYNC BAŞLADI"
+        );
 
-  console.log("2 - getProduct çağrılıyor");
+        const service =
+          new OpenFoodFactsService();
 
-  const onlineProduct = await service.getProduct(barcode);
+        const online =
+          await service.getProduct(
+            barcode
+          );
 
-  console.log("3 - getProduct tamamlandı");
+        if (online) {
 
-  console.log("OpenFoodFacts sonucu:", onlineProduct);
+          await repository.insertProduct(
+            online
+          );
 
-  if (onlineProduct) {
-    await repository.insertProduct(onlineProduct);
+          result =
+            await repository.findByBarcode(
+              barcode
+            );
 
-    result = await repository.findByBarcode(barcode);
-  }
-}
+          console.log(
+            "SMART SYNC TAMAMLANDI"
+          );
+
+        }
+
+      }
+
+      console.log(
+        "IMAGE =",
+        result?.imageUrl
+      );
+
+      console.log(
+        "NAME =",
+        result?.name
+      );
+
+      console.log(
+        "CATEGORY =",
+        result?.category
+      );
 
       setProduct(result);
 
       setLoading(false);
+
     }
 
     loadProduct();
+
   }, [barcode]);
 
+
   const halalStatus = useMemo(() => {
-    if (!product) return null;
 
-    return product.certifications.includes("Halal");
-  }, [product]);
-  if (loading) {
-    return (
-      <Screen>
-        <View style={styles.center}>
-          <ActivityIndicator size="large" color={Colors.primary} />
+    if (!product)
+      return false;
 
-          <AppText style={styles.loadingText}>
-            Ürün bilgileri yükleniyor...
-          </AppText>
-        </View>
-      </Screen>
+    return product.certifications.includes(
+      "Halal"
     );
+
+  }, [product]);
+
+
+  async function shareProduct() {
+
+    if (!product)
+      return;
+
+    await Share.share({
+
+      message:
+        `${product.name}\n\n` +
+        `Barcode: ${product.barcode}`
+
+    });
+
   }
+
+  if (loading) {
+
+    return (
+
+      <Screen>
+
+        <View style={styles.center}>
+
+          <ActivityIndicator
+            size="large"
+            color={Colors.primary}
+          />
+
+          <AppText
+            style={styles.loadingText}
+          >
+
+            Ürün yükleniyor...
+
+          </AppText>
+
+        </View>
+
+      </Screen>
+
+    );
+
+  }
+
 
   if (!product) {
+
     return (
+
       <Screen>
+
         <View style={styles.center}>
-          <AppCard style={styles.notFoundCard}>
-            <AppText style={styles.notFoundTitle}>Ürün Bulunamadı</AppText>
 
-            <AppText style={styles.label}>Barkod</AppText>
+          <AppCard
+            style={styles.notFoundCard}
+          >
 
-            <AppText style={styles.value}>{barcode}</AppText>
+            <AppText
+              style={styles.notFoundTitle}
+            >
 
-            <AppText style={styles.notFoundMessage}>
-              Bu ürün henüz yerel veritabanında bulunmuyor.
+              Ürün Bulunamadı
+
             </AppText>
+
+            <AppText
+              style={styles.label}
+            >
+
+              Barkod
+
+            </AppText>
+
+            <AppText
+              style={styles.value}
+            >
+
+              {barcode}
+
+            </AppText>
+
+            <AppText
+              style={styles.notFoundMessage}
+            >
+
+              Bu ürün veritabanında bulunamadı.
+
+            </AppText>
+
           </AppCard>
+
         </View>
+
       </Screen>
+
     );
+
   }
 
+
   return (
+
     <Screen>
+
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.container}
       >
+
         <AppCard>
-          <AppText style={styles.sectionTitle}>
-            Helal Durumu
+
+          <AppText
+            style={styles.sectionTitle}
+          >
+
+            🟢 Helal Analizi
+
           </AppText>
 
           <AppText
             style={{
-              fontSize: 22,
+              fontSize: 24,
               fontWeight: "700",
               color:
                 analysis?.status === "HALAL"
                   ? "#2E7D32"
                   : analysis?.status === "HARAM"
                   ? "#D32F2F"
-                  : "#F57C00",
+                  : "#F9A825",
             }}
           >
+
             {analysis?.status}
+
           </AppText>
 
-          {analysis?.reasons.map((reason, index) => (
-            <AppText key={index}>
-              • {reason}
+          {analysis?.reasons.map(
+            (reason, index) => (
+
+              <AppText key={index}>
+
+                • {reason}
+
+              </AppText>
+
+            )
+          )}
+
+        </AppCard>
+
+
+
+        {!!product.imageUrl && (
+
+          <Image
+
+            source={{
+              uri: product.imageUrl
+            }}
+
+            style={styles.productImage}
+
+            resizeMode="contain"
+
+            onLoadEnd={() =>
+              setImageLoading(false)
+            }
+
+          />
+
+        )}
+
+
+        {imageLoading &&
+          product.imageUrl && (
+
+            <ActivityIndicator
+              size="small"
+              color={Colors.primary}
+            />
+
+        )}
+
+
+
+        <AppText
+          style={styles.productName}
+        >
+
+          {product.name}
+
+        </AppText>
+
+        <AppText
+          style={styles.barcode}
+        >
+
+          Barkod: {product.barcode}
+
+        </AppText>
+
+        <AppCard>
+
+          <AppText style={styles.sectionTitle}>
+            🏢 Marka
+          </AppText>
+
+          <AppText style={styles.sectionValue}>
+            {product.brand || "-"}
+          </AppText>
+
+        </AppCard>
+
+
+        <AppCard>
+
+          <AppText style={styles.sectionTitle}>
+            📦 Kategori
+          </AppText>
+
+          <AppText style={styles.sectionValue}>
+            {formatCategory(product.category || "-")}
+          </AppText>
+
+        </AppCard>
+
+
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            marginBottom: 16,
+          }}
+        >
+
+          <AppCard
+            style={{
+              flex: 1,
+              marginRight: 6,
+              alignItems: "center",
+            }}
+          >
+
+            <AppText
+              style={{
+                fontWeight: "700",
+                marginBottom: 6,
+              }}
+            >
+              NutriScore
             </AppText>
-          ))}
-        </AppCard>
-        <AppText style={styles.productName}>🌿 {product.name}</AppText>
 
-        <AppText style={styles.barcode}>Barkod: {product.barcode}</AppText>
+            <AppText
+              style={{
+                fontSize: 28,
+                color: "#2E7D32",
+              }}
+            >
+              {(product.nutritionGrade || "-").toUpperCase()}
+            </AppText>
+
+            <AppText
+              style={{
+                textAlign: "center",
+                fontSize: 12,
+              }}
+            >
+              Beslenme kalitesi
+            </AppText>
+
+          </AppCard>
+
+
+          <AppCard
+            style={{
+              flex: 1,
+              marginHorizontal: 6,
+              alignItems: "center",
+            }}
+          >
+
+            <AppText
+              style={{
+                fontWeight: "700",
+                marginBottom: 6,
+              }}
+            >
+              NOVA
+            </AppText>
+
+            <AppText
+              style={{
+                fontSize: 28,
+                color: "#EF6C00",
+              }}
+            >
+              {product.novaGroup ?? "-"}
+            </AppText>
+
+            <AppText
+              style={{
+                textAlign: "center",
+                fontSize: 12,
+              }}
+            >
+              İşlenme seviyesi
+            </AppText>
+
+          </AppCard>
+
+
+          <AppCard
+            style={{
+              flex: 1,
+              marginLeft: 6,
+              alignItems: "center",
+            }}
+          >
+
+            <AppText
+              style={{
+                fontWeight: "700",
+                marginBottom: 6,
+              }}
+            >
+              EcoScore
+            </AppText>
+
+            <AppText
+              style={{
+                fontSize: 28,
+                color: "#388E3C",
+              }}
+            >
+              {(product.ecoScore || "-").toUpperCase()}
+            </AppText>
+
+            <AppText
+              style={{
+                textAlign: "center",
+                fontSize: 12,
+              }}
+            >
+              Çevresel etki
+            </AppText>
+
+          </AppCard>
+
+        </View>
+
+
         <AppCard>
-          <AppText style={styles.sectionTitle}>🏢 Marka</AppText>
 
-          <AppText style={styles.sectionValue}>{product.brand || "-"}</AppText>
-        </AppCard>
-
-        <AppCard>
-          <AppText style={styles.sectionTitle}>📦 Kategori</AppText>
-
-          <AppText style={styles.sectionValue}>
-            {product.category || "-"}
+          <AppText style={styles.sectionTitle}>
+            🌍 Ülkeler
           </AppText>
-        </AppCard>
-
-        <AppCard>
-          <AppText style={styles.sectionTitle}>🌍 Ülkeler</AppText>
 
           <AppText style={styles.sectionValue}>
-            {product.countries.length > 0 ? product.countries.join(", ") : "-"}
+
+            {product.countries.length > 0
+              ? product.countries
+                  .map(formatCountry)
+                  .join("\n")
+              : "-"}
+
           </AppText>
+
         </AppCard>
 
         <AppCard>
-          <AppText style={styles.sectionTitle}>🌿 Sertifikalar</AppText>
+
+          <AppText style={styles.sectionTitle}>
+            📜 Sertifikalar
+          </AppText>
 
           <AppText style={styles.sectionValue}>
+
             {product.certifications.length > 0
-              ? product.certifications.join(", ")
-              : "Sertifika bilgisi yok"}
+              ? product.certifications.join("\n")
+              : "Doğrulanmış sertifika bulunmuyor."}
+
           </AppText>
+
         </AppCard>
+
+
         <AppCard>
-          <AppText style={styles.sectionTitle}>🧾 İçindekiler</AppText>
+
+          <AppText style={styles.sectionTitle}>
+            🧾 İçindekiler
+          </AppText>
 
           {product.ingredients.length > 0 ? (
-            product.ingredients.map((ingredient, index) => (
-              <AppText key={index} style={styles.ingredient}>
-                ✔ {ingredient}
+
+            product.ingredients.map((item, index) => (
+
+              <AppText
+                key={index}
+                style={styles.ingredient}
+              >
+
+                ✔ {item}
+
               </AppText>
+
             ))
+
           ) : (
+
             <AppText style={styles.sectionValue}>
-              İçerik bilgisi bulunmuyor.
+
+              İçerik bilgisi bulunamadı.
+
             </AppText>
+
           )}
+
         </AppCard>
 
-        <AppCard
-          style={[
-            styles.statusCard,
 
-            {
-              backgroundColor: halalStatus
-                ? Colors.primaryLight
-                : Colors.warning,
-            },
-          ]}
+
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            marginTop: 20,
+            marginBottom: 20,
+          }}
         >
-          <AppText style={styles.statusTitle}>
-            {halalStatus ? "🟢 Helal Durumu" : "🟡 Sertifika Durumu"}
+
+          <Pressable
+            onPress={() =>
+              setFavorite(!favorite)
+            }
+            style={{ flex: 1 }}
+          >
+
+            <AppCard
+              style={{
+                alignItems: "center",
+                marginRight: 6,
+              }}
+            >
+
+              <AppText
+                style={{ fontSize: 30 }}
+              >
+
+                {favorite ? "❤️" : "🤍"}
+
+              </AppText>
+
+              <AppText>
+
+                Favori
+
+              </AppText>
+
+            </AppCard>
+
+          </Pressable>
+
+
+
+          <Pressable
+            onPress={shareProduct}
+            style={{ flex: 1 }}
+          >
+
+            <AppCard
+              style={{
+                alignItems: "center",
+                marginHorizontal: 6,
+              }}
+            >
+
+              <AppText
+                style={{ fontSize: 30 }}
+              >
+
+                📤
+
+              </AppText>
+
+              <AppText>
+
+                Paylaş
+
+              </AppText>
+
+            </AppCard>
+
+          </Pressable>
+
+
+
+          <AppCard
+            style={{
+              flex: 1,
+              marginLeft: 6,
+              alignItems: "center",
+            }}
+          >
+
+            <AppText
+              style={{ fontSize: 30 }}
+            >
+
+              🤖
+
+            </AppText>
+
+            <AppText>
+
+              AI Bilgi
+
+            </AppText>
+
+          </AppCard>
+
+        </View>
+
+
+
+        <AppCard>
+
+          <AppText style={styles.sectionTitle}>
+            🤖 AI Bilgi Kartı
           </AppText>
 
-          <AppText style={styles.statusText}>
-            {halalStatus
-              ? "Bu ürün kayıtlı sertifikaya göre helal olarak işaretlenmiştir."
-              : "Bu ürün için doğrulanmış helal sertifikası bulunmuyor."}
+          <AppText style={styles.sectionValue}>
+
+            Bu yardımcı internet veya API kullanmaz.
+
           </AppText>
+
+          <AppText style={styles.sectionValue}>
+
+            • Helal içerik hakkında bilgi verir.
+
+          </AppText>
+
+          <AppText style={styles.sectionValue}>
+
+            • E kodlarını açıklar.
+
+          </AppText>
+
+          <AppText style={styles.sectionValue}>
+
+            • Alerjenleri yorumlar.
+
+          </AppText>
+
+          <AppText style={styles.sectionValue}>
+
+            • NutriScore, NOVA ve EcoScore hakkında bilgi verir.
+
+          </AppText>
+
         </AppCard>
+
       </ScrollView>
+
     </Screen>
+
   );
+
 }
 
 const styles = StyleSheet.create({
+
   container: {
     padding: Spacing.lg,
     paddingBottom: 40,
@@ -237,14 +780,25 @@ const styles = StyleSheet.create({
     color: Colors.textSecondary,
   },
 
+  productImage: {
+    width: 220,
+    height: 220,
+    alignSelf: "center",
+    marginBottom: 20,
+    borderRadius: 16,
+    backgroundColor: "#FFFFFF",
+  },
+
   productName: {
     ...Typography.h1,
     color: Colors.textPrimary,
+    textAlign: "center",
     marginBottom: Spacing.sm,
   },
 
   barcode: {
     color: Colors.textSecondary,
+    textAlign: "center",
     marginBottom: Spacing.lg,
   },
 
@@ -257,6 +811,7 @@ const styles = StyleSheet.create({
     color: Colors.error,
     marginBottom: Spacing.md,
   },
+
   notFoundMessage: {
     marginTop: Spacing.md,
     color: Colors.textSecondary,
@@ -284,6 +839,7 @@ const styles = StyleSheet.create({
   sectionValue: {
     ...Typography.body,
     color: Colors.textPrimary,
+    lineHeight: 22,
   },
 
   ingredient: {
@@ -292,21 +848,5 @@ const styles = StyleSheet.create({
     marginBottom: 6,
     lineHeight: 22,
   },
-  statusCard: {
-    borderLeftWidth: 6,
-    borderLeftColor: Colors.primary,
-    marginTop: Spacing.sm,
-  },
 
-  statusTitle: {
-    ...Typography.h3,
-    color: Colors.white,
-    marginBottom: Spacing.sm,
-  },
-
-  statusText: {
-    ...Typography.body,
-    color: Colors.white,
-    lineHeight: 24,
-  },
 });

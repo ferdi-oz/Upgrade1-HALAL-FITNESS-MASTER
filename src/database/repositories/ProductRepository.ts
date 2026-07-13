@@ -26,7 +26,14 @@ export class ProductRepository {
       brand: row.brand ?? "",
       category: row.category ?? "",
       imageUrl: row.imageUrl ?? "",
-      ingredients: JSON.parse(row.ingredients ?? "[]"),
+
+nutritionGrade: row.nutritionGrade ?? "",
+
+novaGroup: Number(row.novaGroup ?? 0),
+
+ecoScore: row.ecoScore ?? "",
+
+ingredients: JSON.parse(row.ingredients ?? "[]"),
       countries: JSON.parse(row.countries ?? "[]"),
       certifications: JSON.parse(row.certifications ?? "[]"),
       createdAt: new Date(row.createdAt),
@@ -59,7 +66,14 @@ export class ProductRepository {
       brand: row.brand ?? "",
       category: row.category ?? "",
       imageUrl: row.imageUrl ?? "",
-      ingredients: JSON.parse(row.ingredients ?? "[]"),
+
+nutritionGrade: row.nutritionGrade ?? "",
+
+novaGroup: Number(row.novaGroup ?? 0),
+
+ecoScore: row.ecoScore ?? "",
+
+ingredients: JSON.parse(row.ingredients ?? "[]"),
       countries: JSON.parse(row.countries ?? "[]"),
       certifications: JSON.parse(row.certifications ?? "[]"),
       createdAt: new Date(row.createdAt),
@@ -68,13 +82,18 @@ export class ProductRepository {
   }
 
   async insertProduct(product: {
-    barcode: string;
-    name: string;
-    brand: string;
-    category: string;
-    ingredients: string[];
-    countries: string[];
-  }) {
+  barcode: string;
+  name: string;
+  brand: string;
+  category: string;
+  image: string;
+  nutritionGrade: string;
+  novaGroup: number;
+  ecoScore: string;
+  ingredients: string[];
+  countries: string[];
+})
+ {
 
     const db = await getDatabase();
 
@@ -88,26 +107,42 @@ export class ProductRepository {
         brand,
         category,
         imageUrl,
-        ingredients,
-        countries,
-        certifications,
+nutritionGrade,
+novaGroup,
+ecoScore,
+ingredients,
+countries,
+certifications,
         createdAt,
         updatedAt
       )
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `,
       [
-        product.barcode,
-        product.barcode,
-        product.name,
-        product.brand,
-        product.category,
-        "",
-        JSON.stringify(product.ingredients),
-        JSON.stringify(product.countries),
-        JSON.stringify([]),
-        new Date().toISOString(),
-        new Date().toISOString()
+  product.barcode,
+  product.barcode,
+  product.name,
+  product.brand,
+  product.category,
+
+  product.image,
+
+  product.nutritionGrade,
+
+  product.novaGroup,
+
+  product.ecoScore,
+
+  JSON.stringify(product.ingredients),
+
+  JSON.stringify(product.countries),
+
+  JSON.stringify([]),
+
+  new Date().toISOString(),
+
+  new Date().toISOString()
+
       ]
     );
   }

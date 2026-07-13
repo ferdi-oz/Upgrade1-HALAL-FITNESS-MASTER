@@ -1,15 +1,28 @@
 import "../src/localization";
 
-import { useEffect } from "react";
+import React, {
+  useEffect,
+  useState,
+} from "react";
 
 import { Stack } from "expo-router";
+
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+
 import { SafeAreaProvider } from "react-native-safe-area-context";
+
 import { StatusBar } from "expo-status-bar";
 
-import { getDatabase } from "../src/database/database";
+import WelcomeScreen from "../src/screens/WelcomeScreen";
+
+import {
+  getDatabase,
+} from "../src/database/database";
 
 export default function RootLayout() {
+
+  const [showWelcome, setShowWelcome] =
+    useState(true);
 
   useEffect(() => {
 
@@ -32,9 +45,24 @@ export default function RootLayout() {
     initializeDatabase();
 
   }, []);
+  if (showWelcome) {
+
+    return (
+
+      <WelcomeScreen
+        onFinish={() => setShowWelcome(false)}
+      />
+
+    );
+
+  }
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
+
+    <GestureHandlerRootView
+      style={{ flex: 1 }}
+    >
+
       <SafeAreaProvider>
 
         <StatusBar style="dark" />
@@ -44,7 +72,10 @@ export default function RootLayout() {
             headerShown: false,
           }}
         >
-          <Stack.Screen name="(tabs)" />
+
+          <Stack.Screen
+            name="(tabs)"
+          />
 
           <Stack.Screen
             name="product/[barcode]"
@@ -53,6 +84,12 @@ export default function RootLayout() {
             }}
           />
 
+          <Stack.Screen
+            name="ingredient/[code]"
+            options={{
+              presentation: "card",
+            }}
+          />
           <Stack.Screen
             name="settings/index"
             options={{
@@ -70,6 +107,9 @@ export default function RootLayout() {
         </Stack>
 
       </SafeAreaProvider>
+
     </GestureHandlerRootView>
+
   );
+
 }

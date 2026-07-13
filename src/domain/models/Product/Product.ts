@@ -11,6 +11,12 @@ export interface Product {
 
   imageUrl?: string;
 
+  nutritionGrade?: string;
+
+  novaGroup?: number;
+
+  ecoScore?: string;
+
   ingredients: string[];
 
   countries: string[];

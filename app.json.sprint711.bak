@@ -1,7 +1,7 @@
 {
   "expo": {
-   "name": "HALALHEALTH",
-"slug": "halalhealth",
+    "name": "HALAL-FITNESS-MASTER",
+    "slug": "HALAL-FITNESS-MASTER",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -28,7 +28,7 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.ferdiozbunar.halalhealth"
+      "package": "com.ferdiozbunar.halalfitnessmaster"
     },
     "web": {
       "output": "static",

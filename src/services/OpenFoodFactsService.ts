@@ -1,10 +1,23 @@
 ﻿export interface OpenFoodFactsProduct {
   barcode: string;
+
   name: string;
+
   brand: string;
+
+  image: string;
+
   category: string;
+
   ingredients: string[];
+
   countries: string[];
+
+  nutritionGrade: string;
+
+  novaGroup: number;
+
+  ecoScore: string;
 }
 
 function normalizeIngredient(value: string): string {
@@ -18,6 +31,7 @@ function normalizeIngredient(value: string): string {
 }
 
 function parseIngredients(p: any): string[] {
+
   const text: string =
     p.ingredients_text ??
     p.ingredients_text_tr ??
@@ -25,12 +39,14 @@ function parseIngredients(p: any): string[] {
     "";
 
   if (text.trim().length > 0) {
+
     const list = text
       .split(/[,;.\n]/)
       .map(normalizeIngredient)
       .filter((x) => x.length > 0);
 
     return [...new Set(list)];
+
   }
 
   const tags: string[] = p.ingredients_tags ?? [];
@@ -44,8 +60,12 @@ function parseIngredients(p: any): string[] {
 }
 
 export class OpenFoodFactsService {
-  async getProduct(barcode: string): Promise<OpenFoodFactsProduct | null> {
+  async getProduct(
+    barcode: string
+  ): Promise<OpenFoodFactsProduct | null> {
+
     try {
+
       console.log("FETCH BAŞLADI");
 
       const response = await fetch(
@@ -53,7 +73,12 @@ export class OpenFoodFactsService {
       );
 
       if (!response.ok) {
-        console.log("OpenFoodFacts HTTP hatası:", response.status);
+
+        console.log(
+          "OpenFoodFacts HTTP hatası:",
+          response.status
+        );
+
         return null;
       }
 
@@ -61,24 +86,73 @@ export class OpenFoodFactsService {
 
       console.log("JSON GELDİ");
 
-      if (json.status !== 1 || !json.product) {
-        console.log("OpenFoodFacts: ürün bulunamadı ->", barcode);
+      if (
+        json.status !== 1 ||
+        !json.product
+      ) {
+
+        console.log(
+          "Ürün bulunamadı:",
+          barcode
+        );
+
         return null;
+
       }
 
       const p = json.product;
 
+console.log("IMAGE FROM OFF =", p.image_front_url);
+console.log("IMAGE2 =", p.image_url);
+
       return {
+
         barcode,
-        name: p.product_name ?? "",
-        brand: p.brands ?? "",
-        category: p.categories ?? "",
-        ingredients: parseIngredients(p),
-        countries: p.countries_tags ?? [],
+
+        name:
+          p.product_name ?? "",
+
+        brand:
+          p.brands ?? "",
+
+        image:
+          p.image_front_url ??
+          p.image_url ??
+          "",
+
+        category:
+          p.categories ?? "",
+
+        ingredients:
+          parseIngredients(p),
+
+        countries:
+          p.countries_tags ?? [],
+
+        nutritionGrade:
+          p.nutriscore_grade ?? "",
+
+        novaGroup:
+          Number(
+            p.nova_group ?? 0
+          ),
+
+        ecoScore:
+          p.ecoscore_grade ?? "",
+
       };
+
     } catch (error) {
-      console.log("OpenFoodFacts isteği başarısız:", error);
+
+      console.log(
+        "OpenFoodFacts isteği başarısız:",
+        error
+      );
+
       return null;
+
     }
+
   }
+
 }
