@@ -1,193 +1,247 @@
-import { useLocalSearchParams } from "expo-router";
-import { useEffect, useMemo, useState } from "react";
+import React, {
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 
 import {
-  analyzeIngredients,
-} from "../../src/engine/IngredientAnalyzer";
-
-import {
-  ActivityIndicator,
-  Image,
   ScrollView,
-  Share,
   StyleSheet,
   View,
-  Pressable,
+  Image,
 } from "react-native";
 
+import {
+  useLocalSearchParams,
+} from "expo-router";
 
 import Screen from "../../src/components/ui/Screen";
 import AppCard from "../../src/components/ui/AppCard";
 import AppText from "../../src/components/ui/AppText";
 
-
-import {
-  Colors,
-  Spacing,
-  Typography,
-} from "../../src/theme";
-
-
 import {
   ProductRepository,
 } from "../../src/database/repositories/ProductRepository";
-
-
-import {
-  Product,
-} from "../../src/domain/models/Product";
-
 
 import {
   OpenFoodFactsService,
 } from "../../src/services/OpenFoodFactsService";
 
-
 import {
-  HalalEngine,
-} from "../../src/halal/HalalEngine";
-
-
-import {
-  formatCategory,
-  formatCountry,
-} from "../../src/utils/OpenFoodFactsFormatter";
-
-
+  analyzeIngredients,
+} from "../../src/engine/IngredientAnalyzer";
 
 export default function ProductScreen() {
 
-
   const {
-    barcode
+    barcode,
   } =
-  useLocalSearchParams<{
-    barcode:string;
-  }>();
+    useLocalSearchParams<{
+      barcode: string;
+    }>();
 
+  const repository =
+    new ProductRepository();
 
-  const [loading,setLoading]
-  =
-  useState(true);
+  const [loading, setLoading] =
+    useState(true);
 
+  const [product, setProduct] =
+    useState<any>(null);
 
- 
-const [product, setProduct] =
-  useState<any>();
+  const ingredientAnalysis =
+    useMemo(() => {
 
-const ingredientAnalysis = useMemo(() => {
+      if (
+        !product?.ingredients
+      ) {
+        return [];
+      }
 
-  if (!product?.ingredients) {
-    return [];
-  }
+      return analyzeIngredients(
+        product.ingredients
+      );
 
-  return analyzeIngredients(
-    product.ingredients
-  );
+    }, [product]);
 
-}, [product]);
-
-
-  useState<Product | null>(null);
-
-
-  const [favorite,setFavorite]
-  =
-  useState(false);
-
-
-  const [imageLoading,setImageLoading]
-  =
-  useState(true);
-
-
-  const analysis = useMemo(() => {
-
-    if (!product) return null;
-
-    return HalalEngine.analyze(
-      product.ingredients
+  const halalIngredients =
+    ingredientAnalysis.filter(
+      (x: any) =>
+        x.info.status === "halal"
     );
 
-  }, [product]);
+  const warningIngredients =
+    ingredientAnalysis.filter(
+      (x: any) =>
+        x.info.status === "warning"
+    );
+
+  const haramIngredients =
+    ingredientAnalysis.filter(
+      (x: any) =>
+        x.info.status === "haram"
+    );
+
+const halalFitnessScore = useMemo(() => {
+
+  let score = 100;
+
+  // Haram içerik
+  score -= haramIngredients.length * 40;
+
+  // Şüpheli içerik
+  score -= warningIngredients.length * 10;
+
+  // NOVA
+  if (product?.novaGroup >= 4) {
+
+    score -= 20;
+
+  } else if (product?.novaGroup === 3) {
+
+    score -= 10;
+
+  }
+
+  // NutriScore
+  switch (
+    product?.nutritionGrade?.toUpperCase()
+  ) {
+
+    case "B":
+      score -= 5;
+      break;
+
+    case "C":
+      score -= 10;
+      break;
+
+    case "D":
+      score -= 20;
+      break;
+
+    case "E":
+      score -= 30;
+      break;
+
+  }
+
+  if (score < 0) {
+
+    score = 0;
+
+  }
+
+  return score;
+
+}, [
+
+  product,
+
+  halalIngredients,
+
+  warningIngredients,
+
+  haramIngredients,
+
+]);
 
 
   useEffect(() => {
 
     async function loadProduct() {
 
-      if (!barcode) {
+      try {
 
-        setLoading(false);
+        console.log(
+          "========== PRODUCT REPOSITORY =========="
+        );
 
-        return;
-
-      }
-
-      const repository =
-        new ProductRepository();
-
-      let result =
-        await repository.findByBarcode(
+        console.log(
+          "Aranan barkod:",
           barcode
         );
 
-      const needRefresh =
-        !result ||
-        !result.imageUrl ||
-        result.imageUrl.trim() === "" ||
-        !result.category ||
-        result.category.trim() === "";
-
-      if (needRefresh) {
-
-        console.log(
-          "SMART SYNC BAŞLADI"
-        );
-
-        const service =
-          new OpenFoodFactsService();
-
-        const online =
-          await service.getProduct(
+        let result =
+          await repository.findByBarcode(
             barcode
           );
 
-        if (online) {
+        let needRefresh =
+          false;
 
-          await repository.insertProduct(
-            online
-          );
+        if (!result) {
 
-          result =
-            await repository.findByBarcode(
-              barcode
-            );
+          needRefresh = true;
 
-          console.log(
-            "SMART SYNC TAMAMLANDI"
-          );
+        } else {
+
+          if (
+            !result.imageUrl ||
+            result.imageUrl.length < 5
+          ) {
+
+            needRefresh = true;
+
+          }
 
         }
 
+        if (needRefresh) {
+
+          console.log(
+            "SMART SYNC BAŞLADI"
+          );
+
+          const service =
+            new OpenFoodFactsService();
+
+          const online =
+            await service.getProduct(
+              barcode
+            );
+
+          if (online) {
+
+            await repository.insertProduct(
+              online
+            );
+
+            result =
+              await repository.findByBarcode(
+                barcode
+              );
+
+            console.log(
+              "SMART SYNC TAMAMLANDI"
+            );
+
+          }
+
+        }
+
+        console.log(
+          "IMAGE =",
+          result?.imageUrl
+        );
+
+        console.log(
+          "NAME =",
+          result?.name
+        );
+
+        console.log(
+          "CATEGORY =",
+          result?.category
+        );
+
+        setProduct(result);
+
+      } catch (e) {
+
+        console.log(e);
+
       }
-
-      console.log(
-        "IMAGE =",
-        result?.imageUrl
-      );
-
-      console.log(
-        "NAME =",
-        result?.name
-      );
-
-      console.log(
-        "CATEGORY =",
-        result?.category
-      );
-
-      setProduct(result);
 
       setLoading(false);
 
@@ -197,63 +251,21 @@ const ingredientAnalysis = useMemo(() => {
 
   }, [barcode]);
 
-
-  const halalStatus = useMemo(() => {
-
-    if (!product)
-      return false;
-
-    return product.certifications.includes(
-      "Halal"
-    );
-
-  }, [product]);
-
-
-  async function shareProduct() {
-
-    if (!product)
-      return;
-
-    await Share.share({
-
-      message:
-        `${product.name}\n\n` +
-        `Barcode: ${product.barcode}`
-
-    });
-
-  }
-
   if (loading) {
 
     return (
 
       <Screen>
 
-        <View style={styles.center}>
-
-          <ActivityIndicator
-            size="large"
-            color={Colors.primary}
-          />
-
-          <AppText
-            style={styles.loadingText}
-          >
-
-            Ürün yükleniyor...
-
-          </AppText>
-
-        </View>
+        <AppText>
+          Yükleniyor...
+        </AppText>
 
       </Screen>
 
     );
 
   }
-
 
   if (!product) {
 
@@ -261,47 +273,9 @@ const ingredientAnalysis = useMemo(() => {
 
       <Screen>
 
-        <View style={styles.center}>
-
-          <AppCard
-            style={styles.notFoundCard}
-          >
-
-            <AppText
-              style={styles.notFoundTitle}
-            >
-
-              Ürün Bulunamadı
-
-            </AppText>
-
-            <AppText
-              style={styles.label}
-            >
-
-              Barkod
-
-            </AppText>
-
-            <AppText
-              style={styles.value}
-            >
-
-              {barcode}
-
-            </AppText>
-
-            <AppText
-              style={styles.notFoundMessage}
-            >
-
-              Bu ürün veritabanında bulunamadı.
-
-            </AppText>
-
-          </AppCard>
-
-        </View>
+        <AppText>
+          Ürün bulunamadı.
+        </AppText>
 
       </Screen>
 
@@ -309,534 +283,247 @@ const ingredientAnalysis = useMemo(() => {
 
   }
 
-
   return (
 
     <Screen>
 
-<AppCard>
-
- <AppText
-  style={{
-    fontSize: 20,
-    fontWeight: "700",
-    marginBottom: 10,
-  }}
->
-
-
-    🧪 İçerik Analizi
-  </AppText>
-
-  {ingredientAnalysis.length === 0 ? (
-
-    <AppText>
-      Analiz edilecek içerik bulunamadı.
-    </AppText>
-
-  ) : (
-
-    ingredientAnalysis.map((item, index) => (
-
-      <View
-        key={index}
-        style={{ marginTop: 10 }}
-      >
-
-        <AppText>
-
-          {item.info.status === "halal"
-            ? "🟢"
-            : item.info.status === "warning"
-            ? "🟡"
-            : "🔴"}
-
-          {" "}
-
-          {item.info.id}
-
-        </AppText>
-
-        <AppText>
-
-          {item.info.description}
-
-        </AppText>
-
-        <AppText>
-
-          Kaynak:
-
-          {" "}
-
-          {item.info.source}
-
-        </AppText>
-
-      </View>
-
-    ))
-
-  )}
-
-</AppCard>
-
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.container}
-      >
+      <ScrollView>
 
         <AppCard>
 
-          <AppText
-            style={styles.sectionTitle}
-          >
+          {!!product.imageUrl && (
 
-            🟢 Helal Analizi
+            <Image
 
-          </AppText>
+              source={{
+                uri: product.imageUrl,
+              }}
 
-          <AppText
-            style={{
-              fontSize: 24,
-              fontWeight: "700",
-              color:
-                analysis?.status === "HALAL"
-                  ? "#2E7D32"
-                  : analysis?.status === "HARAM"
-                  ? "#D32F2F"
-                  : "#F9A825",
-            }}
-          >
+              style={styles.image}
 
-            {analysis?.status}
+              resizeMode="contain"
 
-          </AppText>
-
-          {analysis?.reasons.map(
-            (reason, index) => (
-
-              <AppText key={index}>
-
-                • {reason}
-
-              </AppText>
-
-            )
-          )}
-
-        </AppCard>
-
-
-
-        {!!product.imageUrl && (
-
-          <Image
-
-            source={{
-              uri: product.imageUrl
-            }}
-
-            style={styles.productImage}
-
-            resizeMode="contain"
-
-            onLoadEnd={() =>
-              setImageLoading(false)
-            }
-
-          />
-
-        )}
-
-
-        {imageLoading &&
-          product.imageUrl && (
-
-            <ActivityIndicator
-              size="small"
-              color={Colors.primary}
             />
 
-        )}
-
-
-
-        <AppText
-          style={styles.productName}
-        >
-
-          {product.name}
-
-        </AppText>
-
-        <AppText
-          style={styles.barcode}
-        >
-
-          Barkod: {product.barcode}
-
-        </AppText>
-
-        <AppCard>
-
-          <AppText style={styles.sectionTitle}>
-            🏢 Marka
-          </AppText>
-
-          <AppText style={styles.sectionValue}>
-            {product.brand || "-"}
-          </AppText>
-
-        </AppCard>
-
-
-        <AppCard>
-
-          <AppText style={styles.sectionTitle}>
-            📦 Kategori
-          </AppText>
-
-          <AppText style={styles.sectionValue}>
-            {formatCategory(product.category || "-")}
-          </AppText>
-
-        </AppCard>
-
-
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "space-between",
-            marginBottom: 16,
-          }}
-        >
-
-          <AppCard
-            style={{
-              flex: 1,
-              marginRight: 6,
-              alignItems: "center",
-            }}
-          >
-
-            <AppText
-              style={{
-                fontWeight: "700",
-                marginBottom: 6,
-              }}
-            >
-              NutriScore
-            </AppText>
-
-            <AppText
-              style={{
-                fontSize: 28,
-                color: "#2E7D32",
-              }}
-            >
-              {(product.nutritionGrade || "-").toUpperCase()}
-            </AppText>
-
-            <AppText
-              style={{
-                textAlign: "center",
-                fontSize: 12,
-              }}
-            >
-              Beslenme kalitesi
-            </AppText>
-
-          </AppCard>
-
-
-          <AppCard
-            style={{
-              flex: 1,
-              marginHorizontal: 6,
-              alignItems: "center",
-            }}
-          >
-
-            <AppText
-              style={{
-                fontWeight: "700",
-                marginBottom: 6,
-              }}
-            >
-              NOVA
-            </AppText>
-
-            <AppText
-              style={{
-                fontSize: 28,
-                color: "#EF6C00",
-              }}
-            >
-              {product.novaGroup ?? "-"}
-            </AppText>
-
-            <AppText
-              style={{
-                textAlign: "center",
-                fontSize: 12,
-              }}
-            >
-              İşlenme seviyesi
-            </AppText>
-
-          </AppCard>
-
-
-          <AppCard
-            style={{
-              flex: 1,
-              marginLeft: 6,
-              alignItems: "center",
-            }}
-          >
-
-            <AppText
-              style={{
-                fontWeight: "700",
-                marginBottom: 6,
-              }}
-            >
-              EcoScore
-            </AppText>
-
-            <AppText
-              style={{
-                fontSize: 28,
-                color: "#388E3C",
-              }}
-            >
-              {(product.ecoScore || "-").toUpperCase()}
-            </AppText>
-
-            <AppText
-              style={{
-                textAlign: "center",
-                fontSize: 12,
-              }}
-            >
-              Çevresel etki
-            </AppText>
-
-          </AppCard>
-
-        </View>
-
-
-        <AppCard>
-
-          <AppText style={styles.sectionTitle}>
-            🌍 Ülkeler
-          </AppText>
-
-          <AppText style={styles.sectionValue}>
-
-            {product.countries.length > 0
-              ? product.countries
-                  .map(formatCountry)
-                  .join("\n")
-              : "-"}
-
-          </AppText>
-
-        </AppCard>
-
-        <AppCard>
-
-          <AppText style={styles.sectionTitle}>
-            📜 Sertifikalar
-          </AppText>
-
-          <AppText style={styles.sectionValue}>
-
-            {product.certifications.length > 0
-              ? product.certifications.join("\n")
-              : "Doğrulanmış sertifika bulunmuyor."}
-
-          </AppText>
-
-        </AppCard>
-
-
-        <AppCard>
-
-          <AppText style={styles.sectionTitle}>
-            🧾 İçindekiler
-          </AppText>
-
-          {product.ingredients.length > 0 ? (
-
-            product.ingredients.map(
-  (item: string, index: number) => (
-
-              <AppText
-                key={index}
-                style={styles.ingredient}
-              >
-
-                ✔ {item}
-
-              </AppText>
-
-            ))
-
-          ) : (
-
-            <AppText style={styles.sectionValue}>
-
-              İçerik bilgisi bulunamadı.
-
-            </AppText>
-
           )}
 
-        </AppCard>
+          <AppText style={styles.title}>
 
+            {product.name}
 
+          </AppText>
 
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "space-between",
-            marginTop: 20,
-            marginBottom: 20,
-          }}
-        >
-
-          <Pressable
-            onPress={() =>
-              setFavorite(!favorite)
-            }
-            style={{ flex: 1 }}
-          >
-
-            <AppCard
-              style={{
-                alignItems: "center",
-                marginRight: 6,
-              }}
-            >
-
-              <AppText
-                style={{ fontSize: 30 }}
-              >
-
-                {favorite ? "❤️" : "🤍"}
-
-              </AppText>
-
-              <AppText>
-
-                Favori
-
-              </AppText>
-
-            </AppCard>
-
-          </Pressable>
-
-
-
-          <Pressable
-            onPress={shareProduct}
-            style={{ flex: 1 }}
-          >
-
-            <AppCard
-              style={{
-                alignItems: "center",
-                marginHorizontal: 6,
-              }}
-            >
-
-              <AppText
-                style={{ fontSize: 30 }}
-              >
-
-                📤
-
-              </AppText>
-
-              <AppText>
-
-                Paylaş
-
-              </AppText>
-
-            </AppCard>
-
-          </Pressable>
-
-
-
-          <AppCard
-            style={{
-              flex: 1,
-              marginLeft: 6,
-              alignItems: "center",
-            }}
-          >
-
-            <AppText
-              style={{ fontSize: 30 }}
-            >
-
-              🤖
-
-            </AppText>
+          {!!product.brand && (
 
             <AppText>
 
-              AI Bilgi
+              {product.brand}
 
             </AppText>
 
-          </AppCard>
+          )}
 
-        </View>
+          {!!product.category && (
+
+            <AppText>
+
+              {product.category}
+
+            </AppText>
+
+          )}
+
+          <AppText>
+
+            Barkod: {product.barcode}
+
+          </AppText>
+
+        </AppCard>
 
 
+<AppCard>
+
+  <AppText style={styles.sectionTitle}>
+    ⭐ Halal Fitness Score
+  </AppText>
+
+  <AppText
+    style={{
+      fontSize: 42,
+      fontWeight: "700",
+      textAlign: "center",
+      color:
+        halalFitnessScore >= 80
+          ? "#2E7D32"
+          : halalFitnessScore >= 60
+          ? "#F9A825"
+          : "#C62828",
+    }}
+  >
+    {halalFitnessScore}/100
+
+
+
+  </AppText>
+
+  <AppText
+    style={{
+      textAlign: "center",
+      marginTop: 10,
+    }}
+  >
+
+    {halalFitnessScore >= 90
+      ? "🟢 Mükemmel seçim"
+
+
+
+      : halalFitnessScore >= 80
+      ? "🟢 İyi seçim"
+
+      : halalFitnessScore >= 60
+      ? "🟡 Dikkatli tüketin"
+
+      : "🔴 Tavsiye edilmez"}
+
+  </AppText>
+
+</AppCard>
 
         <AppCard>
 
           <AppText style={styles.sectionTitle}>
-            🤖 AI Bilgi Kartı
+            Beslenme Bilgisi
           </AppText>
 
-          <AppText style={styles.sectionValue}>
+          <View style={styles.row}>
 
-            Bu yardımcı internet veya API kullanmaz.
+            <AppText style={styles.label}>
+              NutriScore
+            </AppText>
 
+            <AppText>
+              {product.nutritionGrade
+                ? product.nutritionGrade.toUpperCase()
+                : "-"}
+            </AppText>
+
+          </View>
+
+          <View style={styles.row}>
+
+            <AppText style={styles.label}>
+              NOVA
+            </AppText>
+
+            <AppText>
+              {product.novaGroup || "-"}
+            </AppText>
+
+          </View>
+
+          <View style={styles.row}>
+
+            <AppText style={styles.label}>
+              EcoScore
+            </AppText>
+
+            <AppText>
+              {product.ecoScore
+                ? product.ecoScore.toUpperCase()
+                : "-"}
+            </AppText>
+
+          </View>
+
+        </AppCard>
+
+        <AppCard>
+
+          <AppText style={styles.sectionTitle}>
+            🧪 İçerik Analizi
           </AppText>
 
-          <AppText style={styles.sectionValue}>
+          {ingredientAnalysis.length === 0 ? (
 
-            • Helal içerik hakkında bilgi verir.
+            <AppText>
+              Analiz edilecek içerik bulunamadı.
+            </AppText>
 
-          </AppText>
+          ) : (
 
-          <AppText style={styles.sectionValue}>
+            <>
 
-            • E kodlarını açıklar.
+              <AppText style={styles.goodTitle}>
+                🟢 Güvenli İçerikler ({halalIngredients.length})
+              </AppText>
 
-          </AppText>
+              {halalIngredients.length === 0 ? (
 
-          <AppText style={styles.sectionValue}>
+                <AppText>Bulunamadı.</AppText>
 
-            • Alerjenleri yorumlar.
+              ) : (
 
-          </AppText>
+                halalIngredients.map(
+                  (item: any, index: number) => (
 
-          <AppText style={styles.sectionValue}>
+                    <AppText key={`h-${index}`}>
+                      ✔ {item.info.id} - {item.info.title}
+                    </AppText>
 
-            • NutriScore, NOVA ve EcoScore hakkında bilgi verir.
+                  )
+                )
 
-          </AppText>
+              )}
+
+              <AppText style={styles.warningTitle}>
+                🟡 Kontrol Gerektirenler ({warningIngredients.length})
+              </AppText>
+
+              {warningIngredients.length === 0 ? (
+
+                <AppText>Bulunamadı.</AppText>
+
+              ) : (
+
+                warningIngredients.map(
+                  (item: any, index: number) => (
+
+                    <AppText key={`w-${index}`}>
+                      ⚠ {item.info.id} - {item.info.title}
+                    </AppText>
+
+                  )
+                )
+
+              )}
+
+              <AppText style={styles.badTitle}>
+                🔴 Helal Olmayanlar ({haramIngredients.length})
+              </AppText>
+
+              {haramIngredients.length === 0 ? (
+
+                <AppText>Bulunamadı.</AppText>
+
+              ) : (
+
+                haramIngredients.map(
+                  (item: any, index: number) => (
+
+                    <AppText key={`b-${index}`}>
+                      ✖ {item.info.id} - {item.info.title}
+                    </AppText>
+
+                  )
+                )
+
+              )}
+
+            </>
+
+          )}
 
         </AppCard>
 
@@ -850,90 +537,54 @@ const ingredientAnalysis = useMemo(() => {
 
 const styles = StyleSheet.create({
 
-  container: {
-    padding: Spacing.lg,
-    paddingBottom: 40,
-  },
-
-  center: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: Spacing.lg,
-  },
-
-  loadingText: {
-    marginTop: Spacing.md,
-    color: Colors.textSecondary,
-  },
-
-  productImage: {
-    width: 220,
-    height: 220,
-    alignSelf: "center",
-    marginBottom: 20,
-    borderRadius: 16,
-    backgroundColor: "#FFFFFF",
-  },
-
-  productName: {
-    ...Typography.h1,
-    color: Colors.textPrimary,
-    textAlign: "center",
-    marginBottom: Spacing.sm,
-  },
-
-  barcode: {
-    color: Colors.textSecondary,
-    textAlign: "center",
-    marginBottom: Spacing.lg,
-  },
-
-  notFoundCard: {
+  image: {
     width: "100%",
+    height: 220,
+    marginBottom: 16,
   },
 
-  notFoundTitle: {
-    ...Typography.h2,
-    color: Colors.error,
-    marginBottom: Spacing.md,
-  },
-
-  notFoundMessage: {
-    marginTop: Spacing.md,
-    color: Colors.textSecondary,
-    lineHeight: 22,
-  },
-
-  label: {
-    ...Typography.caption,
-    color: Colors.textSecondary,
-    marginTop: Spacing.md,
-    marginBottom: 4,
-  },
-
-  value: {
-    ...Typography.body,
-    color: Colors.textPrimary,
+  title: {
+    fontSize: 22,
+    fontWeight: "700",
+    marginBottom: 8,
   },
 
   sectionTitle: {
-    ...Typography.h3,
-    color: Colors.textPrimary,
-    marginBottom: Spacing.sm,
+    fontSize: 18,
+    fontWeight: "700",
+    marginBottom: 12,
   },
 
-  sectionValue: {
-    ...Typography.body,
-    color: Colors.textPrimary,
-    lineHeight: 22,
+  row: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 10,
   },
 
-  ingredient: {
-    ...Typography.body,
-    color: Colors.textPrimary,
+  label: {
+    fontWeight: "700",
+  },
+
+  goodTitle: {
+    color: "#2E7D32",
+    fontWeight: "700",
+    marginTop: 10,
     marginBottom: 6,
-    lineHeight: 22,
+  },
+
+  warningTitle: {
+    color: "#F9A825",
+    fontWeight: "700",
+    marginTop: 16,
+    marginBottom: 6,
+  },
+
+  badTitle: {
+    color: "#C62828",
+    fontWeight: "700",
+    marginTop: 16,
+    marginBottom: 6,
   },
 
 });
+
