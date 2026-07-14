@@ -1,3 +1,9 @@
+import ProductHeader from "../../src/components/product/ProductHeader";
+
+import NutritionCard from "../../src/components/product/NutritionCard";
+
+import HalalFitnessCard from "../../src/components/product/HalalFitnessCard";
+
 import React, {
   useEffect,
   useMemo,
@@ -296,122 +302,14 @@ const halalFitnessScore = useMemo(() => {
 
       <ScrollView>
 
-        <AppCard>
+<ProductHeader product={product} />
 
-          {!!product.imageUrl && (
+        
 
-            <Image
-
-              source={{
-                uri: product.imageUrl,
-              }}
-
-              style={styles.image}
-
-              resizeMode="contain"
-
-            />
-
-          )}
-
-          <AppText style={styles.title}>
-
-            {product.name}
-
-          </AppText>
-
-          {!!product.brand && (
-
-            <AppText>
-
-              {product.brand}
-
-            </AppText>
-
-          )}
-
-          {!!product.category && (
-
-            <AppText>
-
-              {product.category}
-
-            </AppText>
-
-          )}
-
-          <AppText>
-
-            Barkod: {product.barcode}
-
-          </AppText>
-
-        </AppCard>
-
-
-<AppCard>
-
-  <AppText style={styles.sectionTitle}>
-    ⭐ Halal Fitness Score
-  </AppText>
-
-{isGuest && (
-  <AppText
-    style={{
-      color: "#C62828",
-      textAlign: "center",
-      marginBottom: 12,
-      fontWeight: "600",
-    }}
-  >
-    🔒 Health Analysis is available for members only.
-  </AppText>
-)}
-
-  <AppText
-  style={{
-    fontSize: 42,
-    fontWeight: "700",
-    textAlign: "center",
-    color:
-      halalFitnessScore >= 80
-        ? "#2E7D32"
-        : halalFitnessScore >= 60
-        ? "#F9A825"
-        : "#C62828",
-  }}
->
-  {isGuest ? "🔒" : `${halalFitnessScore}/100`}
-</AppText>
-
-
-
-
-
-  <AppText
-    style={{
-      textAlign: "center",
-      marginTop: 10,
-    }}
-  >
-
-    {halalFitnessScore >= 90
-      ? "🟢 Mükemmel seçim"
-
-
-
-      : halalFitnessScore >= 80
-      ? "🟢 İyi seçim"
-
-      : halalFitnessScore >= 60
-      ? "🟡 Dikkatli tüketin"
-
-      : "🔴 Tavsiye edilmez"}
-
-  </AppText>
-
-</AppCard>
-
+<HalalFitnessCard
+  score={halalFitnessScore}
+  isGuest={isGuest}
+/>
         <AppCard>
 
           <AppText style={styles.sectionTitle}>
