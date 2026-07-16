@@ -1,13 +1,17 @@
 import React from "react";
+
+
 import { ScrollView, View } from "react-native";
+
+
 import { useRouter } from "expo-router";
 
-import Screen from "../../src/components/ui/Screen";
-import AppCard from "../../src/components/ui/AppCard";
-import AppButton from "../../src/components/ui/AppButton";
-import AppText from "../../src/components/ui/AppText";
+import Screen from "../src/components/ui/Screen";
+import AppCard from "../src/components/ui/AppCard";
+import AppButton from "../src/components/ui/AppButton";
+import AppText from "../src/components/ui/AppText";
 
-import { useUser } from "../../src/context/UserContext";
+import { useUser } from "../src/context/UserContext";
 
 export default function ProfileScreen() {
 
@@ -19,11 +23,7 @@ export default function ProfileScreen() {
 
     <Screen>
 
-      <ScrollView
-        contentContainerStyle={{
-          padding: 20,
-        }}
-      >
+      <ScrollView contentContainerStyle={{ padding: 20 }}>
 
         <AppCard>
 
@@ -47,25 +47,26 @@ export default function ProfileScreen() {
 
         </AppCard>
 
-        <View style={{ height: 20 }} />
 
         <AppButton
-          title="Logout"
-          onPress={async () => {
+  title="Logout"
+  onPress={async () => {
 
-            await logout();
+    await logout();
 
-            router.replace("/(tabs)");
+    router.replace("/(tabs)");
 
-          }}
-        />
+  }}
+/>
 
-        <View style={{ height: 12 }} />
 
-        <AppButton
-          title="Back"
-          onPress={() => router.back()}
-        />
+
+<View style={{ height: 12 }} />
+
+<AppButton
+  title="Back"
+  onPress={() => router.back()}
+/>
 
       </ScrollView>
 

@@ -1,9 +1,14 @@
 import React, {
   createContext,
   useContext,
+  useEffect,
   useMemo,
   useState,
 } from "react";
+
+
+import { UserRepository } from "../database/repositories/UserRepository";
+
 
 export type UserMode =
   | "guest"
@@ -25,7 +30,10 @@ interface UserContextType {
     profile: UserProfile
   ) => void;
 
-  logout: () => void;
+
+  logout: () => Promise<void>;
+
+
 }
 
 const UserContext =
@@ -44,7 +52,35 @@ export function UserProvider({
       null
     );
 
+const repository = useMemo(
+  () => new UserRepository(),
+  []
+);
+
+
+useEffect(() => {
+
+  async function loadUser() {
+
+    const savedUser =
+      await repository.getCurrentUser();
+
+    if (savedUser) {
+
+      setUser(savedUser as UserProfile);
+
+    }
+
+  }
+
+  loadUser();
+
+}, []);
+
   const value = useMemo(
+
+
+
     () => ({
       user,
 
@@ -54,11 +90,20 @@ export function UserProvider({
         profile: UserProfile
       ) => setUser(profile),
 
-      logout: () =>
-        setUser(null),
+
+      logout: async () => {
+
+  await repository.deleteUsers();
+
+  setUser(null);
+
+},
+
+
+
     }),
-    [user]
-  );
+[user, repository]
+);
 
   return (
     <UserContext.Provider

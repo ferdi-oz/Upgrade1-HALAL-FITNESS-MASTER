@@ -1,5 +1,9 @@
 import React from "react";
 
+import { useRouter } from "expo-router";
+import AppButton from "../ui/AppButton";
+
+
 import AppCard from "../ui/AppCard";
 import AppText from "../ui/AppText";
 
@@ -12,6 +16,8 @@ export default function HalalFitnessCard({
   score,
   isGuest,
 }: Props) {
+
+const router = useRouter();
 
   return (
 
@@ -57,6 +63,16 @@ export default function HalalFitnessCard({
       >
         {isGuest ? "🔒" : `${score}/100`}
       </AppText>
+
+
+      {isGuest && (
+
+        <AppButton
+          title="Upgrade Now"
+          onPress={() => router.push("/membership")}
+        />
+
+      )}
 
       {!isGuest && (
 

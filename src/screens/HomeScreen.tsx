@@ -10,10 +10,16 @@ import Screen from "../components/ui/Screen";
 import Logo from "../components/home/Logo";
 import RegisterButton from "../components/home/RegisterButton";
 import ScanButton from "../components/home/ScanButton";
+
 import BottomMenu from "../components/home/BottomMenu";
 
+import { useUser } from "../context/UserContext";
+
 export default function HomeScreen() {
+
 const [showResult, setShowResult] = useState(false);
+
+const { isGuest } = useUser();
 
   return (
 
@@ -23,9 +29,25 @@ const [showResult, setShowResult] = useState(false);
 
         <View style={styles.header}>
 
-          <RegisterButton
-            onPress={() => router.push("/profile")}
-          />
+
+
+         <RegisterButton
+  onPress={() => {
+
+    if (isGuest) {
+
+      router.push("/membership");
+
+    } else {
+
+      router.push("/profile");
+
+    }
+
+  }}
+/>
+
+
 
         </View>
         <Logo />

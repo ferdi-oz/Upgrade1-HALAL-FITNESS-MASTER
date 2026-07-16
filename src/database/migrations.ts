@@ -15,20 +15,24 @@ async function addColumnIfMissing(
   );
 
   if (!exists) {
-    console.log(`➕ ${column} sütunu ekleniyor...`);
+
+    console.log(`➕ ${table}.${column} ekleniyor...`);
 
     await db.execAsync(
       `ALTER TABLE ${table} ADD COLUMN ${column} ${type};`
     );
 
-    console.log(`✅ ${column} eklendi.`);
+    console.log(`✅ ${table}.${column} eklendi.`);
   }
 }
 
 export async function runMigrations(
   db: SQLite.SQLiteDatabase
 ) {
+
   console.log("📦 Migration başladı");
+
+  // PRODUCTS
 
   await db.execAsync(`
     CREATE TABLE IF NOT EXISTS products (
@@ -58,6 +62,50 @@ export async function runMigrations(
     );
   `);
 
+  // USERS
+
+  await db.execAsync(`
+    CREATE TABLE IF NOT EXISTS users (
+
+      id TEXT PRIMARY KEY NOT NULL,
+
+      username TEXT NOT NULL,
+
+      mode TEXT NOT NULL,
+
+      createdAt TEXT NOT NULL
+
+    );
+  `);
+
+  // FAMILY MEMBERS
+
+  await db.execAsync(`
+    CREATE TABLE IF NOT EXISTS family_members (
+
+      id TEXT PRIMARY KEY NOT NULL,
+
+      userId TEXT NOT NULL,
+
+      username TEXT NOT NULL,
+
+      age INTEGER,
+
+      height REAL,
+
+      weight REAL,
+
+      allergies TEXT,
+
+      diseases TEXT,
+
+      createdAt TEXT NOT NULL
+
+    );
+  `);
+
+  // PRODUCT COLUMNS
+
   await addColumnIfMissing(
     db,
     "products",
@@ -76,6 +124,92 @@ export async function runMigrations(
     db,
     "products",
     "ecoScore",
+    "TEXT"
+  );
+
+  // USER COLUMNS
+
+  await addColumnIfMissing(
+    db,
+    "users",
+    "email",
+    "TEXT"
+  );
+
+  await addColumnIfMissing(
+    db,
+    "users",
+    "age",
+    "INTEGER"
+  );
+
+  await addColumnIfMissing(
+    db,
+    "users",
+    "gender",
+    "TEXT"
+  );
+
+  await addColumnIfMissing(
+    db,
+    "users",
+    "height",
+    "REAL"
+  );
+
+  await addColumnIfMissing(
+    db,
+    "users",
+    "weight",
+    "REAL"
+  );
+
+  await addColumnIfMissing(
+    db,
+    "users",
+    "activityLevel",
+    "TEXT"
+  );
+
+  await addColumnIfMissing(
+    db,
+    "users",
+    "goal",
+    "TEXT"
+  );
+
+  await addColumnIfMissing(
+    db,
+    "users",
+    "allergies",
+    "TEXT"
+  );
+
+  await addColumnIfMissing(
+    db,
+    "users",
+    "diseases",
+    "TEXT"
+  );
+
+  await addColumnIfMissing(
+    db,
+    "users",
+    "diet",
+    "TEXT"
+  );
+
+  await addColumnIfMissing(
+    db,
+    "users",
+    "photo",
+    "TEXT"
+  );
+
+  await addColumnIfMissing(
+    db,
+    "users",
+    "updatedAt",
     "TEXT"
   );
 

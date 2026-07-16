@@ -2,12 +2,16 @@ import React from "react";
 import { TouchableOpacity, StyleSheet } from "react-native";
 
 import AppText from "../ui/AppText";
+import { useUser } from "../../context/UserContext";
 
 type Props = {
   onPress: () => void;
 };
 
 export default function RegisterButton({ onPress }: Props) {
+
+  const { isGuest } = useUser();
+
   return (
     <TouchableOpacity
       style={styles.button}
@@ -15,7 +19,7 @@ export default function RegisterButton({ onPress }: Props) {
       activeOpacity={0.85}
     >
       <AppText style={styles.text}>
-        👤 Register
+        {isGuest ? "👤 Register" : "👤 Profile"}
       </AppText>
     </TouchableOpacity>
   );

@@ -310,53 +310,7 @@ const halalFitnessScore = useMemo(() => {
   score={halalFitnessScore}
   isGuest={isGuest}
 />
-        <AppCard>
-
-          <AppText style={styles.sectionTitle}>
-            Beslenme Bilgisi
-          </AppText>
-
-          <View style={styles.row}>
-
-            <AppText style={styles.label}>
-              NutriScore
-            </AppText>
-
-            <AppText>
-              {product.nutritionGrade
-                ? product.nutritionGrade.toUpperCase()
-                : "-"}
-            </AppText>
-
-          </View>
-
-          <View style={styles.row}>
-
-            <AppText style={styles.label}>
-              NOVA
-            </AppText>
-
-            <AppText>
-              {product.novaGroup || "-"}
-            </AppText>
-
-          </View>
-
-          <View style={styles.row}>
-
-            <AppText style={styles.label}>
-              EcoScore
-            </AppText>
-
-            <AppText>
-              {product.ecoScore
-                ? product.ecoScore.toUpperCase()
-                : "-"}
-            </AppText>
-
-          </View>
-
-        </AppCard>
+      <NutritionCard product={product} />
 
         <AppCard>
 
