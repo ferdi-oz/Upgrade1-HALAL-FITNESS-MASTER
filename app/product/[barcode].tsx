@@ -40,9 +40,11 @@ import {
 import { useUser } from "../../src/context/UserContext";
 
 
+import { FavoriteRepository } from "../../src/database/repositories/FavoriteRepository";
+
 export default function ProductScreen() {
 
-const { isGuest } = useUser();
+const { user, isGuest } = useUser();
 
   const {
     barcode,
@@ -54,11 +56,19 @@ const { isGuest } = useUser();
   const repository =
     new ProductRepository();
 
+
+const favoriteRepository =
+  new FavoriteRepository();
+
+
   const [loading, setLoading] =
     useState(true);
 
   const [product, setProduct] =
     useState<any>(null);
+
+const [isFavorite, setIsFavorite] =
+  useState(false);
 
   const ingredientAnalysis =
     useMemo(() => {
@@ -250,6 +260,22 @@ const halalFitnessScore = useMemo(() => {
 
         setProduct(result);
 
+if (result && !isGuest) {
+
+
+const favorite =
+  await favoriteRepository.isFavorite(
+    user!.id,
+    result.id
+  );
+
+
+
+  setIsFavorite(favorite);
+
+}
+
+
       } catch (e) {
 
         console.log(e);
@@ -302,15 +328,74 @@ const halalFitnessScore = useMemo(() => {
 
       <ScrollView>
 
-<ProductHeader product={product} />
+     
 
-        
+<ProductHeader product={product} />
 
 <HalalFitnessCard
   score={halalFitnessScore}
   isGuest={isGuest}
 />
-      <NutritionCard product={product} />
+
+<AppCard>
+
+  <AppText
+    onPress={async () => {
+
+      if (isGuest) {
+
+        alert(
+          "Favorites are available for registered users."
+        );
+
+        return;
+
+      }
+
+      if (isFavorite) {
+
+
+await favoriteRepository.addFavorite(
+  user!.id,
+  product.id,
+  product.barcode
+);
+
+
+
+        setIsFavorite(false);
+
+      } else {
+
+     await favoriteRepository.addFavorite(
+  user!.id,
+  product.id,
+  product.barcode
+);
+
+        setIsFavorite(true);
+
+      }
+
+    }}
+    style={{
+      fontSize: 18,
+      textAlign: "center",
+      paddingVertical: 12,
+      fontWeight: "700",
+    }}
+  >
+    {isFavorite
+      ? "❤️ Remove from Favorites"
+      : "🤍 Add to Favorites"}
+  </AppText>
+
+</AppCard>
+
+<NutritionCard product={product} />
+
+
+ 
 
         <AppCard>
 

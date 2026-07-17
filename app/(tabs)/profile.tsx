@@ -1,5 +1,8 @@
-import React from "react";
-
+import React, {
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import FamilyCard from "../../src/components/profile/FamilyCard";
 
 
@@ -21,12 +24,69 @@ import AppButton from "../../src/components/ui/AppButton";
 
 import { useUser } from "../../src/context/UserContext";
 
+
+import { FavoriteRepository } from "../../src/database/repositories/FavoriteRepository";
+import { HistoryRepository } from "../../src/database/repositories/HistoryRepository";
+
+
 export default function ProfileScreen() {
 
   const router = useRouter();
 
   const { user, logout } = useUser();
 
+
+
+const favoriteRepository = useMemo(
+  () => new FavoriteRepository(),
+  []
+);
+
+const historyRepository = useMemo(
+  () => new HistoryRepository(),
+  []
+);
+
+
+
+const [favoriteCount, setFavoriteCount] =
+  useState(0);
+
+const [historyCount, setHistoryCount] =
+  useState(0);
+
+
+useEffect(() => {
+
+  async function loadStats() {
+
+    if (!user) {
+      return;
+    }
+
+    const favorites =
+      await favoriteRepository.getFavoriteCount(
+        user.id
+      );
+
+    const history =
+      await historyRepository.getHistoryCount(
+        user.id
+      );
+
+    setFavoriteCount(favorites);
+
+    setHistoryCount(history);
+
+  }
+
+  loadStats();
+
+}, [
+  user,
+  favoriteRepository,
+  historyRepository,
+]);
   
 
   return (
@@ -47,11 +107,10 @@ export default function ProfileScreen() {
 <HealthCard user={user} />
 
 <StatsCard
-  scanned={0}
-  favorites={0}
-  history={0}
+  scanned={historyCount}
+  favorites={favoriteCount}
+  history={historyCount}
 />
-
 
 
 <View style={{ height: 20 }} />
