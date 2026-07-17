@@ -104,6 +104,47 @@ export async function runMigrations(
     );
   `);
 
+
+// FAVORITES
+
+await db.execAsync(`
+  CREATE TABLE IF NOT EXISTS favorites (
+
+    id TEXT PRIMARY KEY NOT NULL,
+
+    userId TEXT NOT NULL,
+
+    productId TEXT NOT NULL,
+
+    barcode TEXT,
+
+    createdAt TEXT NOT NULL
+
+  );
+`);
+
+
+// HISTORY
+
+await db.execAsync(`
+  CREATE TABLE IF NOT EXISTS history (
+
+    id TEXT PRIMARY KEY NOT NULL,
+
+    userId TEXT NOT NULL,
+
+    productId TEXT,
+
+    barcode TEXT,
+
+    productName TEXT,
+
+    createdAt TEXT NOT NULL
+
+  );
+`);
+
+
   // PRODUCT COLUMNS
 
   await addColumnIfMissing(
