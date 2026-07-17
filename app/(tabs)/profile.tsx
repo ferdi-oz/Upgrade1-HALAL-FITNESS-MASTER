@@ -1,5 +1,13 @@
 import React from "react";
 
+import FamilyCard from "../../src/components/profile/FamilyCard";
+
+
+import ProfileHeader from "../../src/components/profile/ProfileHeader";
+import HealthCard from "../../src/components/profile/HealthCard";
+import StatsCard from "../../src/components/profile/StatsCard";
+
+
 import {
   ScrollView,
   View,
@@ -9,9 +17,7 @@ import {
 import { useRouter } from "expo-router";
 
 import Screen from "../../src/components/ui/Screen";
-import AppCard from "../../src/components/ui/AppCard";
 import AppButton from "../../src/components/ui/AppButton";
-import AppText from "../../src/components/ui/AppText";
 
 import { useUser } from "../../src/context/UserContext";
 
@@ -21,14 +27,7 @@ export default function ProfileScreen() {
 
   const { user, logout } = useUser();
 
-  const bmi =
-    user?.height &&
-    user?.weight
-      ? (
-          user.weight /
-          Math.pow(user.height / 100, 2)
-        ).toFixed(1)
-      : "-";
+  
 
   return (
 
@@ -38,102 +37,26 @@ export default function ProfileScreen() {
         contentContainerStyle={styles.container}
       >
 
-        <AppCard>
-
-          <AppText style={styles.title}>
-            👤 Health Profile
-          </AppText>
-
-          <AppText style={styles.name}>
-            {user?.username ?? "Guest"}
-          </AppText>
-
-          <AppText>
-            {user?.email || "-"}
-          </AppText>
-
-          <View style={{ height: 10 }} />
-
-          <AppText>
-            Membership: {user?.mode ?? "Guest"}
-          </AppText>
-
-        </AppCard>
+        
 
 
-        <View style={{ height: 20 }} />
+    
 
-        <AppCard>
+        <ProfileHeader user={user} />
 
-          <AppText style={styles.sectionTitle}>
-            📊 Body Information
-          </AppText>
+<HealthCard user={user} />
 
-          <AppText>
-            Age: {user?.age ?? "-"}
-          </AppText>
+<StatsCard
+  scanned={0}
+  favorites={0}
+  history={0}
+/>
 
-          <AppText>
-            Gender: {user?.gender || "-"}
-          </AppText>
 
-          <AppText>
-            Height: {user?.height ?? "-"} cm
-          </AppText>
 
-          <AppText>
-            Weight: {user?.weight ?? "-"} kg
-          </AppText>
+<View style={{ height: 20 }} />
 
-          <AppText>
-            BMI: {bmi}
-          </AppText>
-
-          <AppText>
-            Activity: {user?.activityLevel || "-"}
-          </AppText>
-
-        </AppCard>
-
-        <View style={{ height: 20 }} />
-
-        <AppCard>
-
-          <AppText style={styles.sectionTitle}>
-            ❤️ Health
-          </AppText>
-
-          <AppText>
-            Goal: {user?.goal || "-"}
-          </AppText>
-
-          <AppText>
-            Diet: {user?.diet || "-"}
-          </AppText>
-
-          <AppText>
-            Allergies: {user?.allergies || "-"}
-          </AppText>
-
-          <AppText>
-            Diseases: {user?.diseases || "-"}
-          </AppText>
-
-        </AppCard>
-
-        <View style={{ height: 20 }} />
-
-        <AppCard>
-
-          <AppText style={styles.sectionTitle}>
-            👨‍👩‍👧‍👦 Family
-          </AppText>
-
-          <AppText>
-            Family member management will be available soon.
-          </AppText>
-
-        </AppCard>
+<FamilyCard />
 
         <View style={{ height: 24 }} />
 
@@ -170,22 +93,4 @@ const styles = StyleSheet.create({
     paddingBottom: 60,
   },
 
-  title: {
-    fontSize: 26,
-    fontWeight: "700",
-    marginBottom: 8,
-  },
-
-  name: {
-    fontSize: 22,
-    fontWeight: "700",
-  },
-
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: "700",
-    marginBottom: 12,
-  },
-
 });
-
