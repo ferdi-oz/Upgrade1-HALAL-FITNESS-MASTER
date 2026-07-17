@@ -16,11 +16,40 @@ export type UserMode =
   | "family";
 
 export interface UserProfile {
-  id: string;
-  username: string;
-  mode: UserMode;
-}
 
+  id: string;
+
+  username: string;
+
+  mode: UserMode;
+
+  email?: string;
+
+  age?: number;
+
+  gender?: string;
+
+  height?: number;
+
+  weight?: number;
+
+  activityLevel?: string;
+
+  goal?: string;
+
+  allergies?: string;
+
+  diseases?: string;
+
+  diet?: string;
+
+  photo?: string;
+
+  createdAt?: string;
+
+  updatedAt?: string;
+
+}
 interface UserContextType {
   user: UserProfile | null;
 

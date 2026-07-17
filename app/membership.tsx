@@ -361,15 +361,40 @@ export default function MembershipScreen() {
 
             });
 
+
+
             login({
 
-              id,
+  id,
 
-              username: username.trim(),
+  username: username.trim(),
 
-              mode: selectedPlan,
+  mode: selectedPlan,
 
-            });
+  email: email.trim(),
+
+  age: age ? Number(age) : undefined,
+
+  gender,
+
+  height: height ? Number(height) : undefined,
+
+  weight: weight ? Number(weight) : undefined,
+
+  activityLevel,
+
+  goal,
+
+  allergies,
+
+  diseases,
+
+  diet,
+
+});
+
+
+
 
             router.replace("/(tabs)");
 
