@@ -1,14 +1,9 @@
 import React, {
   createContext,
   useContext,
-  useEffect,
   useMemo,
   useState,
 } from "react";
-
-
-import { UserRepository } from "../database/repositories/UserRepository";
-
 
 export type UserMode =
   | "guest"
@@ -21,33 +16,30 @@ export interface UserProfile {
 
   username: string;
 
-  mode: UserMode;
+  email: string;
 
-  email?: string;
+  mode:
+    | "guest"
+    | "individual"
+    | "family";
 
   age?: number;
 
-  gender?: string;
+gender?: string;
 
-  height?: number;
+height?: number;
 
-  weight?: number;
+weight?: number;
 
-  activityLevel?: string;
+  activityLevel: string;
 
-  goal?: string;
+  goal: string;
 
-  allergies?: string;
+  diet: string;
 
-  diseases?: string;
+  allergies: string;
 
-  diet?: string;
-
-  photo?: string;
-
-  createdAt?: string;
-
-  updatedAt?: string;
+  diseases: string;
 
 }
 interface UserContextType {
@@ -59,10 +51,7 @@ interface UserContextType {
     profile: UserProfile
   ) => void;
 
-
-  logout: () => Promise<void>;
-
-
+  logout: () => void;
 }
 
 const UserContext =
@@ -81,35 +70,7 @@ export function UserProvider({
       null
     );
 
-const repository = useMemo(
-  () => new UserRepository(),
-  []
-);
-
-
-useEffect(() => {
-
-  async function loadUser() {
-
-    const savedUser =
-      await repository.getCurrentUser();
-
-    if (savedUser) {
-
-      setUser(savedUser as UserProfile);
-
-    }
-
-  }
-
-  loadUser();
-
-}, []);
-
   const value = useMemo(
-
-
-
     () => ({
       user,
 
@@ -119,20 +80,11 @@ useEffect(() => {
         profile: UserProfile
       ) => setUser(profile),
 
-
-      logout: async () => {
-
-  await repository.deleteUsers();
-
-  setUser(null);
-
-},
-
-
-
+      logout: () =>
+        setUser(null),
     }),
-[user, repository]
-);
+    [user]
+  );
 
   return (
     <UserContext.Provider

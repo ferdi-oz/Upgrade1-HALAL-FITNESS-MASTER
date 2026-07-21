@@ -1,0 +1,50 @@
+[
+  {
+    "id": "gelatin",
+    "name": "Gelatin",
+    "aliases": ["gelatin", "gelatine", "jelatin"],
+    "category": "animal",
+    "halal": "unknown",
+    "healthScore": 60,
+    "vegan": false,
+    "vegetarian": false,
+    "risk": "medium",
+    "description": "Animal-derived gelling agent."
+  },
+  {
+    "id": "e120",
+    "name": "E120",
+    "aliases": ["e120", "cochineal", "carmine"],
+    "category": "color",
+    "halal": "review",
+    "healthScore": 55,
+    "vegan": false,
+    "vegetarian": false,
+    "risk": "medium",
+    "description": "Natural red color from cochineal insects."
+  },
+  {
+    "id": "palm_oil",
+    "name": "Palm Oil",
+    "aliases": ["palm oil", "palmolein"],
+    "category": "oil",
+    "halal": "yes",
+    "healthScore": 45,
+    "vegan": true,
+    "vegetarian": true,
+    "risk": "low",
+    "description": "Vegetable oil."
+  },
+  {
+    "id": "sugar",
+    "name": "Sugar",
+    "aliases": ["sugar", "sucrose"],
+    "category": "sweetener",
+    "halal": "yes",
+    "healthScore": 35,
+    "vegan": true,
+    "vegetarian": true,
+    "risk": "medium",
+    "description": "High intake is not recommended."
+  }
+]

@@ -1,0 +1,83 @@
+[
+  {
+    "code": "E100",
+    "name": "Curcumin",
+    "halal": "yes",
+    "healthScore": 95,
+    "risk": "low",
+    "vegan": true,
+    "description": "Natural yellow colouring from turmeric."
+  },
+  {
+    "code": "E120",
+    "name": "Cochineal",
+    "halal": "review",
+    "healthScore": 55,
+    "risk": "medium",
+    "vegan": false,
+    "description": "Red colouring from insects."
+  },
+  {
+    "code": "E160A",
+    "name": "Beta Carotene",
+    "halal": "yes",
+    "healthScore": 95,
+    "risk": "low",
+    "vegan": true,
+    "description": "Natural orange colouring."
+  },
+  {
+    "code": "E202",
+    "name": "Potassium Sorbate",
+    "halal": "yes",
+    "healthScore": 80,
+    "risk": "low",
+    "vegan": true,
+    "description": "Common preservative."
+  },
+  {
+    "code": "E250",
+    "name": "Sodium Nitrite",
+    "halal": "yes",
+    "healthScore": 35,
+    "risk": "high",
+    "vegan": true,
+    "description": "Common preservative in processed meat."
+  },
+  {
+    "code": "E322",
+    "name": "Lecithin",
+    "halal": "review",
+    "healthScore": 75,
+    "risk": "low",
+    "vegan": true,
+    "description": "May come from soy, sunflower or egg."
+  },
+  {
+    "code": "E330",
+    "name": "Citric Acid",
+    "halal": "yes",
+    "healthScore": 95,
+    "risk": "low",
+    "vegan": true,
+    "description": "Natural acidity regulator."
+  },
+  {
+    "code": "E471",
+    "name": "Mono and Diglycerides",
+    "halal": "review",
+    "healthScore": 60,
+    "risk": "medium",
+    "vegan": false,
+    "description": "May be animal or vegetable origin."
+  },
+  {
+    "code": "E621",
+    "name": "MSG",
+    "halal": "yes",
+    "healthScore": 55,
+    "risk": "medium",
+    "vegan": true,
+    "description": "Monosodium glutamate."
+  }
+]

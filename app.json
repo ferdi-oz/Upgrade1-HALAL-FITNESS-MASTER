@@ -1,7 +1,7 @@
 {
   "expo": {
-   "name": "HALALHEALTH",
-"slug": "halalhealth",
+    "name": "HALALHEALTH",
+    "slug": "halalhealth",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -64,8 +64,9 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "91adcace-d60a-4c26-aaf9-fdf60c3e92c8"
+        "projectId": "58ec1dc9-540c-435d-9843-93fb7017ad09"
       }
-    }
+    },
+    "owner": "ferdiozbunar"
   }
 }

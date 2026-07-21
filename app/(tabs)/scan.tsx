@@ -96,12 +96,15 @@ export default function ScanScreen() {
   Haptics.NotificationFeedbackType.Success
 );
 
-router.push({
+
+
+router.replace({
   pathname: "/product/[barcode]",
   params: {
     barcode: result.data,
   },
 });
+
 
 setTimeout(() => {
   scanning.current = false;
@@ -146,19 +149,27 @@ setTimeout(() => {
 
     <View style={styles.container}>
 
-      <CameraView
-        style={StyleSheet.absoluteFillObject}
-        facing="back"
-        enableTorch={flash}
-        barcodeScannerSettings={{
-          barcodeTypes: [
-            "ean13",
-            "ean8",
-          ],
-        }}
-        onBarcodeScanned={handleBarcodeScanned}
-      >
-        <View style={styles.overlay}>
+
+
+      <View style={{ flex: 1 }}>
+
+  <CameraView
+
+    style={StyleSheet.absoluteFillObject}
+    facing="back"
+    enableTorch={flash}
+    barcodeScannerSettings={{
+      barcodeTypes: [
+        "ean13",
+        "ean8",
+      ],
+    }}
+    onBarcodeScanned={handleBarcodeScanned}
+  />
+
+  <View style={styles.overlay}>
+
+
 
           <TouchableOpacity
             style={styles.closeButton}
@@ -207,24 +218,29 @@ setTimeout(() => {
 
           </View>
 
-          <AppText style={styles.title}>
-            Align barcode inside frame
-          </AppText>
 
-          <AppText style={styles.subtitle}>
-            Barcode will be detected automatically
-          </AppText>
 
-        </View>
+<AppText style={styles.title}>
+  Align barcode inside frame
+</AppText>
 
-      </CameraView>
+<AppText style={styles.subtitle}>
+  Barcode will be detected automatically
+</AppText>
 
-    </View>
+  </View>
 
-  );
+</View>
+
+</View>
+
+);
 
 }
+
 const styles = StyleSheet.create({
+
+
 
   container: {
     flex: 1,

@@ -5,6 +5,7 @@ import {
   StyleSheet,
 } from "react-native";
 
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import AppText from "../ui/AppText";
 
 type Props = {
@@ -23,91 +24,136 @@ export default function BottomMenu({
   return (
     <View style={styles.container}>
 
-      <TouchableOpacity
-        style={styles.item}
-        activeOpacity={0.8}
-        onPress={onHome}
-      >
-        <AppText style={styles.icon}>🏠</AppText>
-        <AppText style={styles.text}>Home</AppText>
-      </TouchableOpacity>
+      <MenuItem
+  icon="home"
+  text="Home"
+  color="#3B82F6"
+  onPress={onHome}
+/>
 
-      <TouchableOpacity
-        style={styles.item}
-        activeOpacity={0.8}
-        onPress={onLibrary}
-      >
-        <AppText style={styles.icon}>📚</AppText>
-        <AppText style={styles.text}>Library</AppText>
-      </TouchableOpacity>
+      <MenuItem
+  icon="bookshelf"
+  text="Library"
+  color="#F59E0B"
+  onPress={onLibrary}
+/>
 
-      <TouchableOpacity
-        style={styles.item}
-        activeOpacity={0.8}
-        onPress={onFavorites}
-      >
-        <AppText style={styles.icon}>❤️</AppText>
-        <AppText style={styles.text}>Favorites</AppText>
-      </TouchableOpacity>
+      <MenuItem
+  icon="heart"
+  text="Favorites"
+  color="#EF4444"
+  onPress={onFavorites}
+/>
 
-      <TouchableOpacity
-        style={styles.item}
-        activeOpacity={0.8}
-        onPress={onSettings}
-      >
-        <AppText style={styles.icon}>⚙️</AppText>
-        <AppText style={styles.text}>Settings</AppText>
-      </TouchableOpacity>
+      <MenuItem
+  icon="cog"
+  text="Settings"
+  color="#A1A1AA"
+  onPress={onSettings}
+/>
 
     </View>
   );
 }
 
+
+
+type ItemProps = {
+  icon: React.ComponentProps<typeof MaterialCommunityIcons>["name"];
+  text: string;
+  color: string;
+  onPress: () => void;
+};
+
+
+function MenuItem({
+  icon,
+  text,
+  color,
+  onPress,
+}: ItemProps) {
+
+
+  return (
+
+    <TouchableOpacity
+      style={styles.item}
+      activeOpacity={0.8}
+      onPress={onPress}
+    >
+
+      <MaterialCommunityIcons
+        name={icon}
+        size={28}
+        color={color}
+      />
+
+      <AppText style={styles.text}>
+        {text}
+      </AppText>
+
+    </TouchableOpacity>
+
+  );
+
+}
+
 const styles = StyleSheet.create({
 
   container: {
+
     flexDirection: "row",
+
     justifyContent: "space-around",
+
     alignItems: "center",
 
     backgroundColor: "#0B0B0B",
 
     marginHorizontal: 16,
-    marginBottom: 18,
 
-    paddingVertical: 14,
+    marginBottom: 20,
+
+    paddingVertical: 16,
 
     borderRadius: 28,
 
     borderWidth: 1.5,
+
     borderColor: "#7DFF3A",
 
     shadowColor: "#7DFF3A",
+
     shadowOpacity: 0.35,
+
     shadowRadius: 20,
-    shadowOffset: {
-      width: 0,
-      height: 0,
-    },
 
     elevation: 16,
+
   },
 
   item: {
-    alignItems: "center",
-    justifyContent: "center",
-    width: 72,
-  },
 
-  icon: {
-    fontSize: 25,
-    marginBottom: 4,
+    width: 72,
+
+    alignItems: "center",
+
+    justifyContent: "center",
+
+    paddingVertical: 6,
+
   },
 
   text: {
+
+    marginTop: 6,
+
     color: "#FFFFFF",
+
     fontSize: 12,
+
     fontWeight: "700",
+
   },
 
 });

@@ -1,22 +1,13 @@
 ﻿export interface OpenFoodFactsProduct {
   barcode: string;
-
   name: string;
-
   brand: string;
-
   image: string;
-
   category: string;
-
   ingredients: string[];
-
   countries: string[];
-
   nutritionGrade: string;
-
   novaGroup: number;
-
   ecoScore: string;
 }
 
@@ -40,26 +31,33 @@ function parseIngredients(p: any): string[] {
 
   if (text.trim().length > 0) {
 
-    const list = text
-      .split(/[,;.\n]/)
-      .map(normalizeIngredient)
-      .filter((x) => x.length > 0);
-
-    return [...new Set(list)];
+    return [
+      ...new Set(
+        text
+          .split(/[,;.\n]/)
+          .map(normalizeIngredient)
+          .filter(x => x.length > 0)
+      ),
+    ];
 
   }
 
-  const tags: string[] = p.ingredients_tags ?? [];
+  const tags: string[] =
+    p.ingredients_tags ?? [];
 
-  const list = tags
-    .map((tag) => tag.split(":").pop() ?? tag)
-    .map(normalizeIngredient)
-    .filter((x) => x.length > 0);
+  return [
+    ...new Set(
+      tags
+        .map((tag) => tag.split(":").pop() ?? tag)
+        .map(normalizeIngredient)
+        .filter(x => x.length > 0)
+    ),
+  ];
 
-  return [...new Set(list)];
 }
 
 export class OpenFoodFactsService {
+
   async getProduct(
     barcode: string
   ): Promise<OpenFoodFactsProduct | null> {
@@ -75,26 +73,20 @@ export class OpenFoodFactsService {
       if (!response.ok) {
 
         console.log(
-          "OpenFoodFacts HTTP hatası:",
+          "HTTP ERROR",
           response.status
         );
 
         return null;
+
       }
 
       const json = await response.json();
-
-      console.log("JSON GELDİ");
 
       if (
         json.status !== 1 ||
         !json.product
       ) {
-
-        console.log(
-          "Ürün bulunamadı:",
-          barcode
-        );
 
         return null;
 
@@ -102,43 +94,39 @@ export class OpenFoodFactsService {
 
       const p = json.product;
 
-console.log("IMAGE FROM OFF =", p.image_front_url);
-console.log("IMAGE2 =", p.image_url);
+
 
       return {
 
         barcode,
 
         name:
-  (
-    p.product_name ??
-    p.product_name_en ??
-    p.generic_name ??
-    p.generic_name_en ??
-    ""
-  )
-    .replace(/\s+/g, " ")
-    .trim(),
+          (
+            p.product_name ??
+            p.product_name_en ??
+            p.generic_name ??
+            p.generic_name_en ??
+            ""
+          )
+            .replace(/\s+/g, " ")
+            .trim(),
 
+        brand:
+          (p.brands ?? "")
+            .split(",")[0]
+            .trim(),
 
         image:
-  p.image_front_large_url ??
-  p.image_front_url ??
-  p.image_url ??
-  p.image_small_url ??
-  "",
+          p.image_front_large_url ??
+          p.image_front_url ??
+          p.image_url ??
+          p.image_small_url ??
+          "",
 
-brand:
-  (p.brands ?? "")
-    .split(",")[0]
-    .trim(),
-
-
-       category:
-  p.categories_tags?.join(",") ??
-  p.categories ??
-  "",
-
+        category:
+          p.categories_tags?.join(",") ??
+          p.categories ??
+          "",
 
         ingredients:
           parseIngredients(p),
@@ -150,9 +138,7 @@ brand:
           p.nutriscore_grade ?? "",
 
         novaGroup:
-          Number(
-            p.nova_group ?? 0
-          ),
+          Number(p.nova_group ?? 0),
 
         ecoScore:
           p.ecoscore_grade ?? "",

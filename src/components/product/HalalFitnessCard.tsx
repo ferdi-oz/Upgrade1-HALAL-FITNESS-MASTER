@@ -49,17 +49,23 @@ const router = useRouter();
       )}
 
       <AppText
+
+
         style={{
-          fontSize: 42,
-          fontWeight: "700",
-          textAlign: "center",
-          color:
-            score >= 80
-              ? "#2E7D32"
-              : score >= 60
-              ? "#F9A825"
-              : "#C62828",
-        }}
+  fontSize: 42,
+  lineHeight: 52,
+  fontWeight: "700",
+  textAlign: "center",
+  color:
+    score >= 80
+      ? "#2E7D32"
+      : score >= 60
+      ? "#F9A825"
+      : "#C62828",
+}}
+
+
+
       >
         {isGuest ? "🔒" : `${score}/100`}
       </AppText>

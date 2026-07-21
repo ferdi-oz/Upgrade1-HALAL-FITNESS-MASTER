@@ -5,11 +5,11 @@ import {
   Image,
   TouchableOpacity,
 } from "react-native";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 import AppText from "../ui/AppText";
 
 type Props = {
-
   visible: boolean;
 
   productName: string;
@@ -23,34 +23,21 @@ type Props = {
   nutritionScore: number;
 
   onAnalyze: () => void;
-
 };
 
 export default function ResultCard({
-
   visible,
-
   productName,
-
   brand,
-
   image,
-
   halal,
-
   nutritionScore,
-
   onAnalyze,
-
 }: Props) {
+  if (!visible) return null;
 
-  if (!visible) {
-    return null;
-  }
   return (
-
     <View style={styles.container}>
-
       <Image
         source={{ uri: image }}
         style={styles.image}
@@ -58,7 +45,6 @@ export default function ResultCard({
       />
 
       <View style={styles.info}>
-
         <AppText style={styles.productName}>
           {productName}
         </AppText>
@@ -68,73 +54,73 @@ export default function ResultCard({
         </AppText>
 
         <View style={styles.statusRow}>
-
           <View
             style={[
               styles.badge,
-
               halal === "halal"
                 ? styles.green
-
                 : halal === "haram"
                 ? styles.red
-
                 : styles.orange,
             ]}
           >
+            <View style={styles.badgeContent}>
+              <MaterialCommunityIcons
+                name={
+                  halal === "halal"
+                    ? "leaf"
+                    : halal === "haram"
+                    ? "close-circle"
+                    : "alert-circle"
+                }
+                size={18}
+                color="#FFFFFF"
+              />
 
-            <AppText style={styles.badgeText}>
-
-              {halal === "halal"
-                ? "✅ HALAL"
-
-                : halal === "haram"
-                ? "❌ HARAM"
-
-                : "⚠️ CHECK"}
-
-            </AppText>
-
+              <AppText style={styles.badgeText}>
+                {halal === "halal"
+                  ? "HALAL"
+                  : halal === "haram"
+                  ? "HARAM"
+                  : "CHECK"}
+              </AppText>
+            </View>
           </View>
 
           <View style={styles.scoreBox}>
-
             <AppText style={styles.scoreTitle}>
               Nutrition
             </AppText>
 
             <AppText style={styles.score}>
-              {nutritionScore}/100
+              {nutritionScore}
             </AppText>
 
+            <AppText style={styles.scoreUnit}>
+              /100
+            </AppText>
           </View>
-
-        </View>
-          <TouchableOpacity
-            style={styles.aiButton}
-            activeOpacity={0.9}
-            onPress={onAnalyze}
-          >
-            <AppText style={styles.aiButtonText}>
-              🤖 AI Analysis
-            </AppText>
-          </TouchableOpacity>
-
         </View>
 
+        <TouchableOpacity
+          style={styles.aiButton}
+          activeOpacity={0.9}
+          onPress={onAnalyze}
+        >
+          <AppText style={styles.aiButtonText}>
+            AI Analysis
+          </AppText>
+        </TouchableOpacity>
+      </View>
     </View>
-
   );
-
 }
 
 const styles = StyleSheet.create({
 
   container: {
-
     marginHorizontal: 18,
-
-    marginBottom: 20,
+    marginBottom: 22,
 
     backgroundColor: "#111111",
 
@@ -150,17 +136,15 @@ const styles = StyleSheet.create({
 
     shadowColor: "#7DFF3A",
 
-    shadowOpacity: 0.35,
+    shadowOpacity: 0.30,
 
-    shadowRadius: 16,
+    shadowRadius: 14,
 
-    elevation: 12,
+    elevation: 10,
   },
 
   image: {
-
     width: 95,
-
     height: 95,
 
     borderRadius: 16,
@@ -169,102 +153,88 @@ const styles = StyleSheet.create({
   },
 
   info: {
-
     flex: 1,
-
     marginLeft: 16,
   },
 
   productName: {
-
     color: "#FFFFFF",
-
     fontSize: 20,
-
     fontWeight: "700",
   },
 
   brand: {
-
     color: "#AAAAAA",
-
     marginTop: 4,
-
     fontSize: 14,
   },
 
   statusRow: {
-
     flexDirection: "row",
-
     justifyContent: "space-between",
-
     alignItems: "center",
-
     marginTop: 18,
   },
+
   badge: {
-
-    paddingHorizontal: 14,
-
-    paddingVertical: 8,
-
+    paddingHorizontal: 16,
+    paddingVertical: 10,
     borderRadius: 18,
-
-    minWidth: 110,
-
+    minWidth: 125,
     alignItems: "center",
+  },
+
+  badgeContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
   },
 
   badgeText: {
-
     color: "#FFFFFF",
-
     fontSize: 13,
-
     fontWeight: "700",
+    marginLeft: 6,
   },
 
   green: {
-
-    backgroundColor: "#2ECC71",
+    backgroundColor: "#22C55E",
   },
 
   red: {
-
-    backgroundColor: "#E74C3C",
+    backgroundColor: "#EF4444",
   },
 
   orange: {
-
-    backgroundColor: "#F39C12",
+    backgroundColor: "#F59E0B",
   },
 
   scoreBox: {
-
+    width: 90,
+    minHeight: 72,
+    justifyContent: "center",
     alignItems: "center",
   },
 
   scoreTitle: {
-
     color: "#AAAAAA",
-
     fontSize: 12,
   },
 
   score: {
-
     color: "#7DFF3A",
-
-    fontSize: 22,
-
+    fontSize: 30,
     fontWeight: "800",
+    lineHeight: 34,
+  },
 
-    marginTop: 2,
+  scoreUnit: {
+    color: "#AAAAAA",
+    fontSize: 12,
+    marginTop: -2,
   },
 
   aiButton: {
-
     marginTop: 22,
 
     backgroundColor: "#7DFF3A",
@@ -285,11 +255,8 @@ const styles = StyleSheet.create({
   },
 
   aiButtonText: {
-
     color: "#050505",
-
     fontSize: 16,
-
     fontWeight: "800",
   },
 

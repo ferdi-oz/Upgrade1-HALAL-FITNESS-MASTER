@@ -1,25 +1,27 @@
-import React from "react";
-import { View, StyleSheet } from "react-native";
-import { router } from "expo-router";
+import React, { useState } from "react";
 
-import { useState } from "react";
-import ResultCard from "../components/home/ResultCard";
+import {
+  View,
+  StyleSheet,
+} from "react-native";
+
+import { router } from "expo-router";
 
 import Screen from "../components/ui/Screen";
 
 import Logo from "../components/home/Logo";
-import RegisterButton from "../components/home/RegisterButton";
 import ScanButton from "../components/home/ScanButton";
-
 import BottomMenu from "../components/home/BottomMenu";
+import RegisterButton from "../components/home/RegisterButton";
+import ResultCard from "../components/home/ResultCard";
 
 import { useUser } from "../context/UserContext";
 
 export default function HomeScreen() {
 
-const [showResult, setShowResult] = useState(false);
+  const { isGuest } = useUser();
 
-const { isGuest } = useUser();
+  const [showResult] = useState(false);
 
   return (
 
@@ -29,54 +31,70 @@ const { isGuest } = useUser();
 
         <View style={styles.header}>
 
+          <RegisterButton
+            onPress={() => {
 
+              if (isGuest) {
 
-         <RegisterButton
-  onPress={() => {
+                router.push("/membership");
 
-    if (isGuest) {
+              } else {
 
-      router.push("/membership");
+                router.push("/profile");
 
-    } else {
+              }
 
-      router.push("/profile");
-
-    }
-
-  }}
-/>
-
-
+            }}
+          />
 
         </View>
+
         <Logo />
 
-       <ScanButton
-  onPress={() => {
-    setShowResult(true);
-    router.push("/scan");
-  }}
-/>
+        <ScanButton
+          onPress={() => {
+
+            router.push("/scan");
+
+          }}
+        />
+
         <View style={styles.spacer} />
 
-        <BottomMenu
-          onHome={() => {}}
-          onLibrary={() => router.push("/library")}
-          onFavorites={() => router.push("/favorites")}
-          onSettings={() => router.push("/settings")}
+        <ResultCard
+          visible={showResult}
+          productName="No product scanned"
+          brand="HALALHEALTH"
+          image="https://placehold.co/150x150/png"
+          halal="unknown"
+          nutritionScore={0}
+          onAnalyze={() => {}}
         />
-<ResultCard
-  visible={showResult}
-  productName="No product scanned"
-  brand="HALALHEALTH"
-  image="https://placehold.co/150x150/png"
-  halal="unknown"
-  nutritionScore={0}
-  onAnalyze={() => {
-    console.log("AI Analysis");
-  }}
-/>
+
+        <BottomMenu
+
+          onHome={() => {}}
+
+          onLibrary={() => {
+
+            router.push("/library");
+
+          }}
+
+          onFavorites={() => {
+
+            router.push("/favorites");
+
+          }}
+
+          onSettings={() => {
+
+            router.push("/profile");
+
+          }}
+
+        />
+
       </View>
 
     </Screen>
@@ -84,23 +102,50 @@ const { isGuest } = useUser();
   );
 
 }
+
 const styles = StyleSheet.create({
+
+
 
   container: {
     flex: 1,
     backgroundColor: "#050505",
-    paddingHorizontal: 20,
-    paddingTop: 18,
+    paddingHorizontal: 18,
+    paddingTop: 20,
+    paddingBottom: 20,
   },
 
   header: {
     width: "100%",
     alignItems: "flex-end",
-    marginBottom: 10,
+    marginBottom: 8,
   },
 
   spacer: {
     flex: 1,
+    minHeight: 25,
+  },
+
+  resultContainer: {
+    marginTop: 20,
+    marginBottom: 20,
+  },
+
+
+  logoArea: {
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  buttonArea: {
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 18,
+  },
+
+  bottomArea: {
+    marginTop: 20,
   },
 
 });
+

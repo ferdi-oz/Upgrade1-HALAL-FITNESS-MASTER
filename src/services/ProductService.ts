@@ -3,20 +3,48 @@ import {
   OpenFoodFactsProduct,
 } from "./OpenFoodFactsService";
 
+import { OpenBeautyFactsService } from "./OpenBeautyFactsService";
+import { OpenPetFoodFactsService } from "./OpenPetFoodFactsService";
+
 class ProductService {
 
-  private off = new OpenFoodFactsService();
+  private food = new OpenFoodFactsService();
+
+  private beauty = new OpenBeautyFactsService();
+
+  private pet = new OpenPetFoodFactsService();
 
   async findProduct(
     barcode: string
   ): Promise<OpenFoodFactsProduct | null> {
 
-    return await this.off.getProduct(barcode);
+    let product = await this.food.getProduct(barcode);
+
+    if (product) {
+      console.log("FOUND IN FOOD");
+      return product;
+    }
+
+    product = await this.beauty.getProduct(barcode);
+
+    if (product) {
+      console.log("FOUND IN BEAUTY");
+      return product;
+    }
+
+    product = await this.pet.getProduct(barcode);
+
+    if (product) {
+      console.log("FOUND IN PET");
+      return product;
+    }
+
+    console.log("NOT FOUND");
+
+    return null;
 
   }
 
 }
 
-const productService = new ProductService();
-
-export default productService;
+export default new ProductService();

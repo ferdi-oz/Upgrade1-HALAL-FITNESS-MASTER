@@ -1,23 +1,28 @@
 import React, { useEffect, useRef } from "react";
 import {
   Animated,
-  TouchableOpacity,
+  Pressable,
   StyleSheet,
   Text,
+  View,
+  Dimensions,
 } from "react-native";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 type Props = {
   onPress: () => void;
 };
 
+const SIZE = Math.min(Dimensions.get("window").width * 0.62, 250);
+
 export default function ScanButton({ onPress }: Props) {
   const scale = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
-    Animated.loop(
+    const animation = Animated.loop(
       Animated.sequence([
         Animated.timing(scale, {
-          toValue: 1.06,
+          toValue: 1.04,
           duration: 900,
           useNativeDriver: true,
         }),
@@ -27,8 +32,15 @@ export default function ScanButton({ onPress }: Props) {
           useNativeDriver: true,
         }),
       ])
-    ).start();
-  }, []);
+    );
+
+    animation.start();
+
+    return () => {
+      animation.stop();
+      scale.stopAnimation();
+    };
+  }, [scale]);
 
   return (
     <Animated.View
@@ -39,17 +51,35 @@ export default function ScanButton({ onPress }: Props) {
         },
       ]}
     >
-      <TouchableOpacity
-        activeOpacity={0.85}
-        style={styles.button}
+      <Pressable
+        android_ripple={{ color: "#234d12" }}
+        style={({ pressed }) => [
+          styles.button,
+          {
+            width: SIZE,
+            height: SIZE,
+            borderRadius: SIZE / 2,
+            opacity: pressed ? 0.92 : 1,
+            transform: [{ scale: pressed ? 0.98 : 1 }],
+          },
+        ]}
         onPress={onPress}
       >
-        <Text style={styles.icon}>📷</Text>
+        <MaterialCommunityIcons
+          name="leaf"
+          size={60}
+          color="#7DFF3A"
+        />
 
         <Text style={styles.title}>
-          SCAN PRODUCT
+          TAP TO SCAN
         </Text>
-      </TouchableOpacity>
+
+        <Text style={styles.subtitle}>
+          Scan Product Barcode
+        </Text>
+
+      </Pressable>
     </Animated.View>
   );
 }
@@ -57,42 +87,33 @@ export default function ScanButton({ onPress }: Props) {
 const styles = StyleSheet.create({
   wrapper: {
     alignItems: "center",
-    marginTop: 30,
+    marginTop: 28,
   },
 
   button: {
-    width: 250,
-    height: 250,
-    borderRadius: 125,
-
     backgroundColor: "#101010",
-
     borderWidth: 4,
     borderColor: "#7DFF3A",
-
     justifyContent: "center",
     alignItems: "center",
 
     shadowColor: "#7DFF3A",
-    shadowOpacity: 0.9,
-    shadowRadius: 30,
-    shadowOffset: {
-      width: 0,
-      height: 0,
-    },
-
-    elevation: 18,
-  },
-
-  icon: {
-    fontSize: 48,
-    marginBottom: 12,
+    shadowOpacity: 0.55,
+    shadowRadius: 22,
+    elevation: 16,
   },
 
   title: {
+    marginTop: 18,
     color: "#FFFFFF",
     fontSize: 24,
-    fontWeight: "700",
+    fontWeight: "800",
     letterSpacing: 1,
+  },
+
+  subtitle: {
+    marginTop: 10,
+    color: "#A0A0A0",
+    fontSize: 15,
   },
 });

@@ -1,5 +1,8 @@
-﻿import * as SQLite from "expo-sqlite";
+﻿
+
+import * as SQLite from "expo-sqlite";
 import products from "./seed/catalogs/turkey.json";
+
 
 export async function seedDatabase(
   db: SQLite.SQLiteDatabase

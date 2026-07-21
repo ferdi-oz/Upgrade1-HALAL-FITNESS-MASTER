@@ -30,11 +30,14 @@ const styles = StyleSheet.create({
     marginBottom: 30,
   },
 
+
   logo: {
-    width: 120,
-    height: 120,
-    marginBottom: 10,
-  },
+  width: 155,
+  height: 155,
+  marginBottom: 18,
+},
+
+
 
   title: {
     fontSize: 34,
