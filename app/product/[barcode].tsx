@@ -1,4 +1,9 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, {
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+
 import {
   ScrollView,
   StyleSheet,
@@ -6,7 +11,10 @@ import {
   Alert,
 } from "react-native";
 
-import { router, useLocalSearchParams } from "expo-router";
+import {
+  router,
+  useLocalSearchParams,
+} from "expo-router";
 
 import Screen from "../../src/components/ui/Screen";
 import AppCard from "../../src/components/ui/AppCard";
@@ -21,11 +29,14 @@ import { FavoriteRepository } from "../../src/database/repositories/FavoriteRepo
 
 import { ProductLookupEngine } from "../../src/product/engine/ProductLookupEngine";
 
-import { analyzeIngredients } from "../../src/engine/IngredientAnalyzer";
+import { AnalysisEngine } from "../../src/engine/analysis/AnalysisEngine";
 
 import { useUser } from "../../src/context/UserContext";
-
 export default function ProductScreen() {
+
+
+
+
 
   const { barcode } = useLocalSearchParams<{
     barcode: string;
@@ -33,7 +44,18 @@ export default function ProductScreen() {
 
   const { user, isGuest } = useUser();
 
-  const repository = new ProductRepository();
+
+
+const repository =
+  new ProductRepository();
+
+
+
+  const analysisEngine =
+  new AnalysisEngine();
+
+
+
 
   const favoriteRepository =
     new FavoriteRepository();
@@ -103,7 +125,11 @@ if (lookup.found && lookup.product) {
 
       if (!result) {
 
-        setProduct(null);
+
+
+       setProduct(null);
+
+
 
         return;
 
@@ -140,38 +166,81 @@ if (lookup.found && lookup.product) {
 
   }
 
-  const ingredientAnalysis =
-    useMemo(() => {
 
-      if (!product?.ingredients) {
 
-        return [];
+  const analysis =
+  useMemo(() => {
 
-      }
+    if (!product?.ingredients) {
 
-      return analyzeIngredients(
-        product.ingredients
-      );
+      return null;
 
-    }, [product]);
+    }
 
-  const halalIngredients =
-    ingredientAnalysis.filter(
-      (x: any) =>
-        x.info.status === "halal"
+    return analysisEngine.analyze(
+      product.ingredients
     );
 
-  const warningIngredients =
-    ingredientAnalysis.filter(
-      (x: any) =>
-        x.info.status === "warning"
-    );
+  }, [product]);
 
-  const haramIngredients =
-    ingredientAnalysis.filter(
-      (x: any) =>
-        x.info.status === "haram"
-    );
+const halalScore =
+  analysis?.halal.score ?? 100;
+
+const healthScore =
+  analysis?.health.score ?? 100;
+
+const recommendations =
+  Array.isArray(analysis?.recommendation)
+    ? analysis.recommendation
+    : analysis?.recommendation
+      ? [analysis.recommendation]
+      : [];
+
+
+const explanations =
+  analysis?.explanation ?? [];
+
+const detectedIngredients =
+  analysis?.ingredients ?? [];
+
+
+
+const allergy =
+  analysis?.allergy;
+
+
+const vegan =
+  analysis?.vegan;
+
+
+
+const health =
+  analysis?.health;
+
+
+
+const detectedECodes =
+  analysis?.ecodes ?? [];
+
+const halalIngredients =
+  detectedIngredients.filter(
+    i => i.halal === "yes"
+  );
+
+const warningIngredients =
+  detectedIngredients.filter(
+    i =>
+      i.halal === "review" ||
+      i.halal === "unknown"
+  );
+
+const haramIngredients =
+  detectedIngredients.filter(
+    i => i.halal === "no"
+  );
+
+
+
 
   const halalFitnessScore =
     useMemo(() => {
@@ -336,20 +405,160 @@ if (lookup.found && lookup.product) {
         }}
       >
 
+
+
         <ProductHeader
-          product={product}
-        />
+  product={product}
+/>
 
-        <HalalFitnessCard
-          score={halalFitnessScore}
-          isGuest={isGuest}
-        />
+<HalalFitnessCard
+  score={halalScore}
+  isGuest={isGuest}
+/>
 
-        <NutritionCard
-          product={product}
-        />
 
-        <AppCard>
+
+<NutritionCard
+  product={product}
+/>
+
+
+
+<AppCard>
+
+  <AppText style={styles.sectionTitle}>
+    🤖 AI Recommendation
+  </AppText>
+
+  {recommendations.length === 0 ? (
+
+    <AppText>
+      No recommendation available.
+    </AppText>
+
+  ) : (
+
+    recommendations.map(
+      (item: string, index: number) => (
+
+        <AppText
+          key={index}
+          style={{
+            marginBottom: 8,
+          }}
+        >
+          • {item}
+        </AppText>
+
+      )
+    )
+
+  )}
+
+</AppCard>
+
+<AppCard>
+
+  <AppText style={styles.sectionTitle}>
+    💡 AI Explanation
+  </AppText>
+
+  {explanations.length === 0 ? (
+
+    <AppText>
+      No explanation available.
+    </AppText>
+
+  ) : (
+
+    explanations.map(
+      (item: string, index: number) => (
+
+        <AppText
+          key={index}
+          style={{
+            marginBottom: 8,
+          }}
+        >
+          • {item}
+        </AppText>
+
+      )
+    )
+
+  )}
+
+</AppCard>
+
+
+
+<AppCard>
+
+  <AppText style={styles.sectionTitle}>
+    🧪 Detected Ingredients
+  </AppText>
+
+  {detectedIngredients.length === 0 ? (
+
+    <AppText>
+      No ingredients detected.
+    </AppText>
+
+  ) : (
+
+    detectedIngredients.map((item, index) => (
+
+      <View
+        key={index}
+        style={{
+          marginBottom: 14,
+          paddingBottom: 10,
+          borderBottomWidth: 1,
+          borderBottomColor: "#E5E7EB",
+        }}
+      >
+
+        <AppText
+          style={{
+            fontSize: 17,
+            fontWeight: "700",
+          }}
+        >
+          {item.name}
+        </AppText>
+
+        <AppText>
+          Halal : {item.halal}
+        </AppText>
+
+        <AppText>
+          Health Score : {item.healthScore}
+        </AppText>
+
+        <AppText>
+          Risk : {item.risk}
+        </AppText>
+
+        <AppText
+          style={{
+            marginTop: 4,
+            color: "#666",
+          }}
+        >
+          {item.description}
+        </AppText>
+
+      </View>
+
+    ))
+
+  )}
+
+</AppCard>
+
+
+<AppCard>
+
 
           <AppText
             onPress={async () => {
@@ -401,53 +610,354 @@ if (lookup.found && lookup.product) {
 
         </AppCard>
 
-        <AppCard>
 
-          <AppText style={styles.sectionTitle}>
-            🧪 Ingredient Analysis
-          </AppText>
 
-          <AppText style={styles.goodTitle}>
-            🟢 Safe Ingredients ({halalIngredients.length})
-          </AppText>
 
-          {halalIngredients.map((item: any, index: number) => (
+<AppCard>
 
-            <AppText key={`h-${index}`}>
-              ✔ {item.info.id} - {item.info.title}
+  <AppText style={styles.sectionTitle}>
+    🧬 Detected E-Codes
+  </AppText>
+
+  {detectedECodes.length === 0 ? (
+
+    <AppText>
+      No E-Codes detected.
+    </AppText>
+
+  ) : (
+
+    detectedECodes.map((item, index) => (
+
+      <View
+        key={index}
+        style={{
+          marginBottom: 14,
+          paddingBottom: 10,
+          borderBottomWidth: 1,
+          borderBottomColor: "#E5E7EB",
+        }}
+      >
+
+        <AppText
+          style={{
+            fontSize: 17,
+            fontWeight: "700",
+            marginBottom: 4,
+          }}
+        >
+          {item.code}
+        </AppText>
+
+        <AppText>
+          {item.name}
+        </AppText>
+
+        <AppText>
+          Halal : {item.halal}
+        </AppText>
+
+        <AppText>
+          Health Score : {item.healthScore}
+        </AppText>
+
+        <AppText>
+          Risk : {item.risk}
+        </AppText>
+
+        <AppText
+          style={{
+            marginTop: 4,
+            color: "#666",
+          }}
+        >
+          {item.description}
+        </AppText>
+
+      </View>
+
+    ))
+
+  )}
+
+</AppCard>
+
+<AppCard>
+
+  <AppText style={styles.sectionTitle}>
+    🚨 Allergy Analysis
+  </AppText>
+
+  {!allergy ? (
+
+    <AppText>
+      No allergy analysis available.
+    </AppText>
+
+  ) : (
+
+    <>
+
+      <AppText
+        style={{
+          fontWeight: "700",
+          fontSize: 17,
+          marginBottom: 8,
+        }}
+      >
+        Risk : {allergy.risk}
+      </AppText>
+
+      <AppText
+        style={{
+          marginBottom: 12,
+        }}
+      >
+        Safety Score : {allergy.score}/100
+      </AppText>
+
+      {allergy.warnings.length === 0 ? (
+
+        <AppText
+          style={{
+            color: "#2E7D32",
+          }}
+        >
+          ✅ No allergens detected.
+        </AppText>
+
+      ) : (
+
+        allergy.warnings.map(
+          (warning: string, index: number) => (
+
+            <AppText
+              key={index}
+              style={{
+                color: "#C62828",
+                marginBottom: 6,
+              }}
+            >
+              • {warning}
             </AppText>
 
-          ))}
+          )
+        )
 
-          <AppText style={styles.warningTitle}>
-            🟡 Warning ({warningIngredients.length})
-          </AppText>
+      )}
 
-          {warningIngredients.map((item: any, index: number) => (
+    </>
 
-            <AppText key={`w-${index}`}>
-              ⚠ {item.info.id} - {item.info.title}
+  )}
+
+
+
+
+</AppCard>
+
+<AppCard>
+
+  <AppText style={styles.sectionTitle}>
+    🌱 Vegan Analysis
+  </AppText>
+
+  {!vegan ? (
+
+    <AppText>
+      No vegan analysis available.
+    </AppText>
+
+  ) : (
+
+    <>
+
+      <AppText
+        style={{
+          fontWeight: "700",
+          fontSize: 17,
+          marginBottom: 8,
+        }}
+      >
+        Vegan :
+        {vegan.vegan ? " Yes" : " No"}
+      </AppText>
+
+      <AppText
+        style={{
+          marginBottom: 12,
+        }}
+      >
+        Vegan Score :
+        {vegan.score}/100
+      </AppText>
+
+      {vegan.warnings.length === 0 ? (
+
+        <AppText
+          style={{
+            color: "#2E7D32",
+          }}
+        >
+          ✅ Suitable for vegans.
+        </AppText>
+
+      ) : (
+
+        vegan.warnings.map(
+          (warning: string, index: number) => (
+
+            <AppText
+              key={index}
+              style={{
+                color: "#C62828",
+                marginBottom: 6,
+              }}
+            >
+              • {warning}
             </AppText>
 
-          ))}
+          )
+        )
 
-          <AppText style={styles.badTitle}>
-            🔴 Haram ({haramIngredients.length})
-          </AppText>
+      )}
 
-          {haramIngredients.map((item: any, index: number) => (
+    </>
 
-            <AppText key={`b-${index}`}>
-              ✖ {item.info.id} - {item.info.title}
+  )}
+
+
+
+
+</AppCard>
+
+<AppCard>
+
+  <AppText style={styles.sectionTitle}>
+    ❤️ Health Summary
+  </AppText>
+
+  {!health ? (
+
+    <AppText>
+      No health analysis available.
+    </AppText>
+
+  ) : (
+
+    <>
+
+      <AppText
+        style={{
+          fontWeight: "700",
+          fontSize: 17,
+          marginBottom: 8,
+        }}
+      >
+        Health Score : {health.score}/100
+      </AppText>
+
+      {health.warnings.length === 0 ? (
+
+        <AppText
+          style={{
+            color: "#2E7D32",
+          }}
+        >
+          ✅ No health concerns detected.
+        </AppText>
+
+      ) : (
+
+        health.warnings.map(
+          (warning: string, index: number) => (
+
+            <AppText
+              key={index}
+              style={{
+                color: "#C62828",
+                marginBottom: 6,
+              }}
+            >
+              • {warning}
             </AppText>
 
-          ))}
+          )
+        )
 
-        </AppCard>
+      )}
 
-        <View style={{ height: 30 }} />
+    </>
 
-      </ScrollView>
+  )}
+
+
+
+
+</AppCard>
+
+<AppCard>
+
+  <AppText style={styles.sectionTitle}>
+    🏆 Final AI Decision
+  </AppText>
+
+  <AppText
+    style={{
+      fontSize: 22,
+      fontWeight: "700",
+      marginBottom: 14,
+
+
+      color:
+  (analysis?.halal.score ?? 0) >= 80 &&
+  (analysis?.health.score ?? 0) >= 70
+    ? "#2E7D32"
+    : (analysis?.halal.score ?? 0) >= 50
+    ? "#F9A825"
+    : "#C62828",
+
+
+    }}
+  >
+
+    {(analysis?.halal.score ?? 0) >= 80 &&
+(analysis?.health.score ?? 0) >= 70
+
+
+      ? "🟢 HALAL & HEALTHY"
+
+
+     : (analysis?.halal.score ?? 0) >= 50
+
+
+      ? "🟡 NEEDS REVIEW"
+      : "🔴 NOT RECOMMENDED"}
+  </AppText>
+
+  <AppText>
+    Halal Score : {analysis?.halal.score}/100
+  </AppText>
+
+  <AppText>
+    Health Score : {analysis?.health.score}/100
+  </AppText>
+
+  <AppText>
+    Vegan :
+    {analysis?.vegan?.vegan ? " YES" : " NO"}
+  </AppText>
+
+  <AppText>
+    Allergy Risk :
+    {analysis?.allergy?.risk.toUpperCase()}
+  </AppText>
+
+</AppCard>
+
+</ScrollView>
+
+
+
 
     </Screen>
 

@@ -1,53 +1,134 @@
-import {
-  IngredientInfo,
-  IngredientLibrary,
-} from "../database/IngredientLibrary";
+import { IngredientParser } from "./parser/IngredientParser";
+import { IngredientNormalizer } from "./normalizer/IngredientNormalizer";
+import { IngredientEngine } from "./ingredients/IngredientEngine";
 
-export type IngredientMatch = {
+const parser = new IngredientParser();
+const normalizer = new IngredientNormalizer();
+const engine = new IngredientEngine();
 
-  ingredient: string;
+export interface AnalysisItem {
 
-  info: IngredientInfo;
+  raw: string;
 
-};
+  normalized: string;
 
-export function analyzeIngredients(
-  ingredients: string[]
-): IngredientMatch[] {
+  ingredient: any | null;
 
-  const matches: IngredientMatch[] = [];
+  ecode: any | null;
 
-  for (const ingredient of ingredients) {
+  status: "halal" | "warning" | "haram" | "unknown";
 
-    const text = ingredient.toLowerCase();
+}
 
-    for (const item of IngredientLibrary) {
+export function analyzeIngredients(text: string): AnalysisItem[] {
 
-      const found = item.names.some(
-        (name) =>
-          text.includes(
-            name.toLowerCase()
-          )
-      );
+  const parsed =
+    parser.parse(text);
 
-      if (found) {
+  const normalized =
+    parsed.map(item =>
+      normalizer.normalize(item)
+    );
 
-        matches.push({
+  const result: AnalysisItem[] = [];
 
-          ingredient,
+  for (const item of normalized) {
 
-          info: item,
+    const ingredient =
+      engine.find(item);
 
-        });
+    if (ingredient) {
 
-        break;
+      result.push({
 
-      }
+        raw: item,
+
+        normalized: item,
+
+        ingredient,
+
+        ecode: null,
+
+
+
+
+      status:
+  ingredient.halal === "yes"
+    ? "halal"
+    : ingredient.halal === "no"
+    ? "haram"
+    : ingredient.halal === "review"
+    ? "warning"
+    : "unknown",
+
+
+
+      });
+
+      continue;
 
     }
 
+    const ecode =
+      engine.findECode(item);
+
+    if (ecode) {
+
+      result.push({
+
+        raw: item,
+
+        normalized: item,
+
+        ingredient: null,
+
+        ecode,
+
+
+
+        status:
+  ecode.halal === "yes"
+    ? "halal"
+    : ecode.halal === "no"
+    ? "haram"
+    : ecode.halal === "review"
+    ? "warning"
+    : "unknown",
+
+
+
+      });
+
+      continue;
+
+    }
+
+    result.push({
+
+      raw: item,
+
+      normalized: item,
+
+      ingredient: null,
+
+      ecode: null,
+
+      status: "unknown",
+
+    });
+
   }
 
-  return matches;
+  return result.filter(
+
+    (item, index, array) =>
+
+      array.findIndex(
+
+        x => x.normalized === item.normalized
+
+      ) === index
+
+  );
 
 }
