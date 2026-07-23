@@ -219,6 +219,20 @@ const health =
 
 
 
+const halalFitnessScore =
+  Math.round(
+
+    (
+      (analysis?.halal.score ?? 0) +
+      (analysis?.health.score ?? 0) +
+      (analysis?.vegan.score ?? 0) +
+      (analysis?.allergy.score ?? 0)
+
+    ) / 4
+
+  );
+
+
 const detectedECodes =
   analysis?.ecodes ?? [];
 
@@ -242,27 +256,7 @@ const haramIngredients =
 
 
 
-  const halalFitnessScore =
-    useMemo(() => {
-
-      let score = 100;
-
-      score -=
-        haramIngredients.length * 40;
-
-      score -=
-        warningIngredients.length * 10;
-
-      if (score < 0)
-        score = 0;
-
-      return score;
-
-    }, [
-      halalIngredients,
-      warningIngredients,
-      haramIngredients,
-    ]);
+  
 
 
   if (loading) {
@@ -952,7 +946,297 @@ const haramIngredients =
     {analysis?.allergy?.risk.toUpperCase()}
   </AppText>
 
+
+
+
 </AppCard>
+
+<AppCard>
+
+  <AppText style={styles.sectionTitle}>
+    ⭐ HALAL FITNESS SCORE
+  </AppText>
+
+  <AppText
+    style={{
+      fontSize: 42,
+      fontWeight: "700",
+      textAlign: "center",
+      color:
+        halalFitnessScore >= 80
+          ? "#2E7D32"
+          : halalFitnessScore >= 60
+          ? "#F9A825"
+          : "#C62828",
+      marginBottom: 10,
+    }}
+  >
+    {halalFitnessScore}
+  </AppText>
+
+  <AppText
+    style={{
+      textAlign: "center",
+      fontSize: 18,
+      fontWeight: "700",
+      marginBottom: 18,
+    }}
+  >
+    /100
+  </AppText>
+
+  <AppText
+    style={{
+      textAlign: "center",
+      fontSize: 26,
+      marginBottom: 12,
+    }}
+  >
+    {halalFitnessScore >= 90
+      ? "★★★★★"
+      : halalFitnessScore >= 75
+      ? "★★★★☆"
+      : halalFitnessScore >= 60
+      ? "★★★☆☆"
+      : halalFitnessScore >= 40
+      ? "★★☆☆☆"
+      : "★☆☆☆☆"}
+  </AppText>
+
+  <AppText
+    style={{
+      textAlign: "center",
+      fontSize: 18,
+      fontWeight: "700",
+    }}
+  >
+    {halalFitnessScore >= 90
+      ? "Excellent Product"
+      : halalFitnessScore >= 75
+      ? "Good Choice"
+      : halalFitnessScore >= 60
+      ? "Average Product"
+      : halalFitnessScore >= 40
+      ? "Needs Attention"
+      : "Avoid Product"}
+  </AppText>
+
+
+
+
+</AppCard>
+
+<AppCard>
+
+  <AppText style={styles.sectionTitle}>
+    📄 PRODUCT REPORT
+  </AppText>
+
+  <AppText>
+    Product :
+    {" "}
+    {product?.name ?? "-"}
+  </AppText>
+
+  <AppText>
+    Barcode :
+    {" "}
+    {product?.barcode ?? "-"}
+  </AppText>
+
+  <AppText>
+    Halal Score :
+    {" "}
+    {analysis?.halal.score ?? 0}/100
+  </AppText>
+
+  <AppText>
+    Health Score :
+    {" "}
+    {analysis?.health.score ?? 0}/100
+  </AppText>
+
+  <AppText>
+    Vegan :
+    {" "}
+    {analysis?.vegan?.vegan ? "YES" : "NO"}
+  </AppText>
+
+  <AppText>
+    Allergy Risk :
+    {" "}
+    {analysis?.allergy?.risk ?? "-"}
+  </AppText>
+
+  <AppText>
+    Ingredients :
+    {" "}
+    {analysis?.ingredients.length ?? 0}
+  </AppText>
+
+  <AppText>
+    E-Codes :
+    {" "}
+    {analysis?.ecodes.length ?? 0}
+  </AppText>
+
+  <AppText>
+    HALAL FITNESS SCORE :
+    {" "}
+    {halalFitnessScore}/100
+  </AppText>
+
+
+
+<AppText
+  style={{
+    marginTop: 16,
+    fontWeight: "700",
+  }}
+>
+  🤖 AI Nutrition Summary
+</AppText>
+
+<AppText
+  style={{
+    marginTop: 8,
+    color: "#555",
+    lineHeight: 22,
+  }}
+>
+  {analysis?.nutritionSummary}
+</AppText>
+
+
+
+
+<AppText
+  style={{
+    marginTop: 20,
+    fontWeight: "700",
+  }}
+>
+  👨‍👩‍👧 Family Recommendation
+</AppText>
+
+<AppText
+  style={{
+    marginTop: 8,
+    color: "#1565C0",
+    lineHeight: 22,
+  }}
+>
+  {analysis?.familyRecommendation}
+</AppText>
+
+
+
+</AppCard>
+
+
+
+
+<AppCard>
+
+  <AppText style={styles.sectionTitle}>
+    📊 PRODUCT STATISTICS
+  </AppText>
+
+  <AppText>
+    Ingredients :
+    {" "}
+    {analysis?.ingredients.length ?? 0}
+  </AppText>
+
+  <AppText>
+    E-Codes :
+    {" "}
+    {analysis?.ecodes.length ?? 0}
+  </AppText>
+
+  <AppText>
+    Halal Score :
+    {" "}
+    {analysis?.halal.score ?? 0}%
+  </AppText>
+
+  <AppText>
+    Health Score :
+    {" "}
+    {analysis?.health.score ?? 0}%
+  </AppText>
+
+  <AppText>
+    Vegan :
+    {" "}
+    {analysis?.vegan?.vegan ? "YES" : "NO"}
+  </AppText>
+
+  <AppText>
+    Allergy Risk :
+    {" "}
+    {analysis?.allergy?.risk ?? "-"}
+  </AppText>
+
+</AppCard>
+
+
+
+
+<View
+  style={{
+    marginTop: 20,
+  }}
+>
+
+  <AppText
+    style={{
+      fontWeight: "700",
+      marginBottom: 8,
+    }}
+  >
+    ⭐ Overall HALAL FITNESS SCORE
+  </AppText>
+
+  <View
+    style={{
+      height: 16,
+      backgroundColor: "#E0E0E0",
+      borderRadius: 8,
+      overflow: "hidden",
+    }}
+  >
+
+    <View
+      style={{
+        width: `${halalFitnessScore}%`,
+        height: "100%",
+        backgroundColor:
+          halalFitnessScore >= 80
+            ? "#43A047"
+            : halalFitnessScore >= 60
+            ? "#F9A825"
+            : "#E53935",
+      }}
+    />
+
+  </View>
+
+  <AppText
+    style={{
+      marginTop: 8,
+      textAlign: "center",
+      fontWeight: "700",
+      fontSize: 18,
+    }}
+  >
+    {halalFitnessScore}/100
+  </AppText>
+
+</View>
+
+
+
 
 </ScrollView>
 
