@@ -10,12 +10,16 @@ import {
 
 import { useRouter } from "expo-router";
 
+
+import { MembershipManager } from "../src/membership/services/MembershipManager";
+
 import Screen from "../src/components/ui/Screen";
 import AppCard from "../src/components/ui/AppCard";
 import AppButton from "../src/components/ui/AppButton";
 import AppText from "../src/components/ui/AppText";
 
 import { useUser } from "../src/context/UserContext";
+
 import { UserRepository } from "../src/database/repositories/UserRepository";
 
 export default function MembershipScreen() {
@@ -26,8 +30,20 @@ export default function MembershipScreen() {
 
   const repository = new UserRepository();
 
+
+const membership = new MembershipManager();
+
+
+
   const [selectedPlan, setSelectedPlan] =
-    useState<"individual" | "family" | null>(null);
+  useState<
+    "guest" |
+    "individual" |
+    "family" |
+    null
+  >(null);
+
+
 
   const [username, setUsername] =
     useState("");

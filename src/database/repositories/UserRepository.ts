@@ -3,7 +3,9 @@ import { getDatabase } from "../database";
 export interface CreateUserData {
   username: string;
   email?: string;
-  mode: "individual" | "family";
+
+
+  mode: "guest" | "individual" | "family";
 
   age?: number;
   gender?: string;

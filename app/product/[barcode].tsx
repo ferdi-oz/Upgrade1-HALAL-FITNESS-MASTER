@@ -21,8 +21,15 @@ import AppCard from "../../src/components/ui/AppCard";
 import AppText from "../../src/components/ui/AppText";
 
 import ProductHeader from "../../src/components/product/ProductHeader";
+
 import NutritionCard from "../../src/components/product/NutritionCard";
 import HalalFitnessCard from "../../src/components/product/HalalFitnessCard";
+
+
+import ProductDashboard from "../../src/components/product/sections/ProductDashboard";
+
+
+
 
 import { ProductRepository } from "../../src/database/repositories/ProductRepository";
 import { FavoriteRepository } from "../../src/database/repositories/FavoriteRepository";
@@ -32,8 +39,16 @@ import { ProductLookupEngine } from "../../src/product/engine/ProductLookupEngin
 import { AnalysisEngine } from "../../src/engine/analysis/AnalysisEngine";
 
 import { useUser } from "../../src/context/UserContext";
-export default function ProductScreen() {
 
+import {
+  DashboardScore,
+  DashboardQuickStatus,
+  DashboardStatistics,
+  DashboardSummary,
+  DashboardFamily,
+} from "../../src/components/dashboard";
+
+export default function ProductScreen() {
 
 
 
@@ -405,12 +420,14 @@ const haramIngredients =
   product={product}
 />
 
+<ProductDashboard
+  analysis={analysis}
+/>
+
 <HalalFitnessCard
   score={halalScore}
   isGuest={isGuest}
 />
-
-
 
 <NutritionCard
   product={product}
