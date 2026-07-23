@@ -1,0 +1,29 @@
+import "../src/localization";
+
+import React, {
+  useEffect,
+  useState,
+} from "react";
+
+import { Stack } from "expo-router";
+
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+
+import { SafeAreaProvider } from "react-native-safe-area-context";
+
+import { StatusBar } from "expo-status-bar";
+
+import WelcomeScreen from "../src/screens/WelcomeScreen";
+
+import {
+  getDatabase,
+} from "../src/database/database";
+
+import {
+  UserProvider,
+} from "../src/context/UserContext";
+
+import membershipStore from "../src/store/MembershipStore";
+import guestStore from "../src/store/GuestStore";
+import familyStore from "../src/store/FamilyStore";
+import settingsStore from "../src/store/SettingsStore";

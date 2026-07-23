@@ -19,15 +19,21 @@ import {
   getDatabase,
 } from "../src/database/database";
 
-
 import {
   UserProvider,
 } from "../src/context/UserContext";
+
+import membershipStore from "../src/store/MembershipStore";
+import guestStore from "../src/store/GuestStore";
+import familyStore from "../src/store/FamilyStore";
+import settingsStore from "../src/store/SettingsStore";
+
 
 export default function RootLayout() {
 
   const [showWelcome, setShowWelcome] =
     useState(true);
+
 
   useEffect(() => {
 
@@ -37,7 +43,17 @@ export default function RootLayout() {
 
         await getDatabase();
 
-        console.log("Database initialized");
+        await membershipStore.load();
+
+        await guestStore.load();
+
+        await familyStore.load();
+
+        await settingsStore.load();
+
+
+        console.log("Database and stores initialized");
+
 
       } catch (error) {
 
@@ -47,9 +63,13 @@ export default function RootLayout() {
 
     }
 
+
     initializeDatabase();
 
+
   }, []);
+
+
   if (showWelcome) {
 
     return (
@@ -62,6 +82,7 @@ export default function RootLayout() {
 
   }
 
+
   return (
 
     <GestureHandlerRootView
@@ -70,53 +91,60 @@ export default function RootLayout() {
 
       <SafeAreaProvider>
 
-  <UserProvider>
+        <UserProvider>
 
-    <StatusBar style="dark" />
+          <StatusBar style="dark" />
 
-    <Stack
+          <Stack
 
-          screenOptions={{
-            headerShown: false,
-          }}
-        >
-
-          <Stack.Screen
-            name="(tabs)"
-          />
-
-          <Stack.Screen
-            name="product/[barcode]"
-            options={{
-              presentation: "card",
+            screenOptions={{
+              headerShown: false,
             }}
-          />
 
-          <Stack.Screen
-            name="ingredient/[code]"
-            options={{
-              presentation: "card",
-            }}
-          />
-          <Stack.Screen
-            name="settings/index"
-            options={{
-              presentation: "modal",
-            }}
-          />
+          >
 
-          <Stack.Screen
-            name="modal"
-            options={{
-              presentation: "modal",
-            }}
-          />
+            <Stack.Screen
+              name="(tabs)"
+            />
 
-       </Stack>
 
-  </UserProvider>
+            <Stack.Screen
+              name="product/[barcode]"
+              options={{
+                presentation: "card",
+              }}
+            />
 
-</SafeAreaProvider>
+
+            <Stack.Screen
+              name="ingredient/[code]"
+              options={{
+                presentation: "card",
+              }}
+            />
+
+
+            <Stack.Screen
+              name="settings/index"
+              options={{
+                presentation: "modal",
+              }}
+            />
+
+
+            <Stack.Screen
+              name="modal"
+              options={{
+                presentation: "modal",
+              }}
+            />
+
+
+          </Stack>
+
+        </UserProvider>
+
+      </SafeAreaProvider>
 
     </GestureHandlerRootView>
 
