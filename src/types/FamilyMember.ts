@@ -5,29 +5,29 @@ export interface FamilyMember {
 
   username: string;
 
-  email?: string;
+  email?: string | null;
 
-  age: number;
+  age?: number | null;
 
-  gender: string;
+  gender?: string | null;
 
-  height: number;
+  height?: number | null;
 
-  weight: number;
+  weight?: number | null;
 
-  allergies: string;
+  allergies?: string | null;
 
-  diseases: string;
+  diseases?: string | null;
 
-  diet: string;
+  diet?: string | null;
 
-  activityLevel: string;
+  activityLevel?: string | null;
 
-  goal: string;
+  goal?: string | null;
 
-  photo?: string;
+  photo?: string | null;
 
   createdAt: string;
 
-  updatedAt?: string;
+  updatedAt?: string | null;
 }

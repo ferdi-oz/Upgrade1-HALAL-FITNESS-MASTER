@@ -1,5 +1,5 @@
 import { getDatabase } from "../database";
-import { FamilyMember } from "../../types/FamilyMember";
+import type { FamilyMember } from "../../types/FamilyMember";
 
 export class FamilyRepository {
 
@@ -7,7 +7,7 @@ export class FamilyRepository {
     return await getDatabase();
   }
 
-  async addMember(member: FamilyMember) {
+  async addMember(member: FamilyMember): Promise<void> {
 
     const db = await getDatabase();
 
@@ -34,11 +34,11 @@ export class FamilyRepository {
         member.id,
         member.userId,
         member.username,
-        member.age,
-        member.height,
-        member.weight,
-        member.allergies,
-        member.diseases,
+        member.age ?? null,
+        member.height ?? null,
+        member.weight ?? null,
+        member.allergies ?? null,
+        member.diseases ?? null,
         member.createdAt
 
       ]
@@ -48,12 +48,12 @@ export class FamilyRepository {
   }
 
 
-  async getMembers(userId: string) {
+  async getMembers(userId: string): Promise<FamilyMember[]> {
 
     const db = await getDatabase();
 
     const members =
-      await db.getAllAsync(
+      await db.getAllAsync<FamilyMember>(
 
         `SELECT *
          FROM family_members
@@ -64,16 +64,16 @@ export class FamilyRepository {
 
       );
 
-    return members as FamilyMember[];
+    return members;
 
   }
 
-  async getMemberById(id: string) {
+  async getMemberById(id: string): Promise<FamilyMember | null> {
 
     const db = await getDatabase();
 
     const member =
-      await db.getFirstAsync(
+      await db.getFirstAsync<FamilyMember>(
 
         `SELECT *
          FROM family_members
@@ -83,11 +83,11 @@ export class FamilyRepository {
 
       );
 
-    return member as FamilyMember | null;
+    return member;
 
   }
 
-  async updateMember(member: FamilyMember) {
+  async updateMember(member: FamilyMember): Promise<void> {
 
     const db = await getDatabase();
 
@@ -108,11 +108,11 @@ export class FamilyRepository {
       [
 
         member.username,
-        member.age,
-        member.height,
-        member.weight,
-        member.allergies,
-        member.diseases,
+        member.age ?? null,
+        member.height ?? null,
+        member.weight ?? null,
+        member.allergies ?? null,
+        member.diseases ?? null,
 
         member.id
 
@@ -123,7 +123,7 @@ export class FamilyRepository {
   }
 
 
-  async deleteMember(id: string) {
+  async deleteMember(id: string): Promise<void> {
 
     const db = await getDatabase();
 
@@ -138,7 +138,7 @@ export class FamilyRepository {
 
   }
 
-  async clearMembers(userId: string) {
+  async clearMembers(userId: string): Promise<void> {
 
     const db = await getDatabase();
 
