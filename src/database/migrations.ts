@@ -89,7 +89,11 @@ export async function runMigrations(
 
       username TEXT NOT NULL,
 
+      email TEXT,
+
       age INTEGER,
+
+      gender TEXT,
 
       height REAL,
 
@@ -99,10 +103,69 @@ export async function runMigrations(
 
       diseases TEXT,
 
+      diet TEXT,
+
+      activityLevel TEXT,
+
+      goal TEXT,
+
+      photo TEXT,
+
+      updatedAt TEXT,
+
       createdAt TEXT NOT NULL
 
     );
   `);
+
+  await addColumnIfMissing(
+    db,
+    "family_members",
+    "email",
+    "TEXT"
+  );
+
+  await addColumnIfMissing(
+    db,
+    "family_members",
+    "gender",
+    "TEXT"
+  );
+
+  await addColumnIfMissing(
+    db,
+    "family_members",
+    "diet",
+    "TEXT"
+  );
+
+  await addColumnIfMissing(
+    db,
+    "family_members",
+    "activityLevel",
+    "TEXT"
+  );
+
+  await addColumnIfMissing(
+    db,
+    "family_members",
+    "goal",
+    "TEXT"
+  );
+
+  await addColumnIfMissing(
+    db,
+    "family_members",
+    "photo",
+    "TEXT"
+  );
+
+  await addColumnIfMissing(
+    db,
+    "family_members",
+    "updatedAt",
+    "TEXT"
+  );
 
 
 // FAVORITES
