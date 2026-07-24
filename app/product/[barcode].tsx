@@ -192,9 +192,15 @@ if (lookup.found && lookup.product) {
 
     }
 
-    return analysisEngine.analyze(
-      product.ingredients
-    );
+    const ingredientText = Array.isArray(product.ingredients)
+      ? product.ingredients
+          .filter((item: unknown): item is string => typeof item === "string")
+          .join(",")
+      : typeof product.ingredients === "string"
+        ? product.ingredients
+        : "";
+
+    return analysisEngine.analyze(ingredientText);
 
   }, [product]);
 

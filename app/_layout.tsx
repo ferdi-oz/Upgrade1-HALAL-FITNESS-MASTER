@@ -25,7 +25,6 @@ import {
 
 import membershipStore from "../src/store/MembershipStore";
 import guestStore from "../src/store/GuestStore";
-import familyStore from "../src/store/FamilyStore";
 import settingsStore from "../src/store/SettingsStore";
 
 
@@ -47,8 +46,7 @@ export default function RootLayout() {
 
         await guestStore.load();
 
-        await familyStore.load();
-
+       
         await settingsStore.load();
 
 
